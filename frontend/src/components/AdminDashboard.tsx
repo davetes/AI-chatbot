@@ -21,12 +21,21 @@ type Message = {
 export default function AdminDashboard() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
-      const [a, m] = await Promise.all([getAnalytics(), getMessages()]);
-      setAnalytics(a);
-      setMessages(m);
+      try {
+        setLoading(true);
+        const [a, m] = await Promise.all([getAnalytics(), getMessages()]);
+        setAnalytics(a);
+        setMessages(m);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load admin data");
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, []);
@@ -37,37 +46,44 @@ export default function AdminDashboard() {
       <div className="admin-grid">
         <div className="admin-panel">
           <h3>Total Messages</h3>
-          <p>{analytics?.total_messages ?? "..."}</p>
+          <p>{loading ? "..." : analytics?.total_messages ?? "0"}</p>
         </div>
         <div className="admin-panel">
           <h3>Last 24h</h3>
-          <p>{analytics?.last_24h ?? "..."}</p>
+          <p>{loading ? "..." : analytics?.last_24h ?? "0"}</p>
         </div>
         <div className="admin-panel">
           <h3>Channels</h3>
           <ul>
-            {analytics
+            {loading
+              ? "..."
+              : analytics
               ? Object.entries(analytics.channels).map(([name, count]) => (
                   <li key={name}>
                     {name}: {count}
                   </li>
                 ))
-              : "..."}
+              : "No data"}
           </ul>
         </div>
       </div>
 
+      {error && <p className="admin-error">{error}</p>}
+
       <h3 style={{ marginTop: "24px" }}>Recent Conversations</h3>
       <div className="admin-table">
-        {messages.map((msg) => (
-          <div key={msg.id} className="admin-row">
-            <div>
-              <strong>{msg.channel}</strong> • {new Date(msg.created_at).toLocaleString()}
+        {loading && <div className="admin-row">Loading conversations...</div>}
+        {!loading && messages.length === 0 && <div className="admin-row">No conversations yet.</div>}
+        {!loading &&
+          messages.map((msg) => (
+            <div key={msg.id} className="admin-row">
+              <div>
+                <strong>{msg.channel}</strong> • {new Date(msg.created_at).toLocaleString()}
+              </div>
+              <div>User: {msg.user_message}</div>
+              <div>Bot: {msg.bot_message}</div>
             </div>
-            <div>User: {msg.user_message}</div>
-            <div>Bot: {msg.bot_message}</div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );

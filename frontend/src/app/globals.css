@@ -128,3 +128,9 @@ body {
   background: #0f172a;
   border: 1px solid #1f2937;
 }
+
+.admin-error {
+  margin-top: 12px;
+  color: #fca5a5;
+  font-weight: 600;
+}

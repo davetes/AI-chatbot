@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
+from pydantic import ConfigDict
 
 class ChatRequest(BaseModel):
     message: str
@@ -12,6 +13,7 @@ class ChatResponse(BaseModel):
     reply: str
 
 class MessageOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     channel: str
     user_id: Optional[str]
