@@ -14,5 +14,7 @@ class Settings:
     meta_phone_number_id: str = os.getenv("META_PHONE_NUMBER_ID", "")
     meta_page_access_token: str = os.getenv("META_PAGE_ACCESS_TOKEN", "")
     telegram_bot_token: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    crm_webhook_url: str = os.getenv("CRM_WEBHOOK_URL", "")
+    sheets_webhook_url: str = os.getenv("SHEETS_WEBHOOK_URL", "")
 
 settings = Settings()

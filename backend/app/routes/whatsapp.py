@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Query, Request
 from typing import Any, Dict, List
-from app.ai.chatbot import generate_reply
 from app.config import settings
-from app.services.db import save_message
+from app.services.chat_handler import handle_incoming_message
 from app.services.messaging import send_whatsapp_message
 
 router = APIRouter()
@@ -31,12 +30,6 @@ async def receive_message(request: Request) -> Dict[str, Any]:
         sender = message.get("from")
         if not text or not sender:
             continue
-        reply = generate_reply(text, channel="whatsapp")
-        await save_message(
-            channel="whatsapp",
-            user_message=text,
-            bot_message=reply,
-            user_id=sender,
-        )
+        reply = await handle_incoming_message("whatsapp", sender, text)
         await send_whatsapp_message(sender, reply)
     return {"status": "ok"}

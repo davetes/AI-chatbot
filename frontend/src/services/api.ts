@@ -24,7 +24,7 @@ export async function getAnalytics(): Promise<{ total_messages: number; channels
 }
 
 export async function getMessages(): Promise<
-  Array<{ id: number; channel: string; user_id: string | null; user_message: string; bot_message: string; created_at: string }>
+  Array<{ id: number; sender: string; content: string; platform: string; user_external_id: string; conversation_id: number; created_at: string }>
 > {
   const response = await fetch(`${API_BASE}/admin/messages?limit=50`);
   if (!response.ok) {
@@ -32,10 +32,45 @@ export async function getMessages(): Promise<
   }
   return (await response.json()) as Array<{
     id: number;
-    channel: string;
-    user_id: string | null;
-    user_message: string;
-    bot_message: string;
+    sender: string;
+    content: string;
+    platform: string;
+    user_external_id: string;
+    conversation_id: number;
+    created_at: string;
+  }>;
+}
+
+export async function getConversations(): Promise<
+  Array<{ id: number; platform: string; status: string; user_external_id: string; created_at: string }>
+> {
+  const response = await fetch(`${API_BASE}/admin/conversations?limit=50`);
+  if (!response.ok) {
+    throw new Error("Failed to load conversations");
+  }
+  return (await response.json()) as Array<{
+    id: number;
+    platform: string;
+    status: string;
+    user_external_id: string;
+    created_at: string;
+  }>;
+}
+
+export async function getLeads(): Promise<
+  Array<{ id: number; name: string | null; phone: string | null; email: string | null; platform: string; intent: string | null; created_at: string }>
+> {
+  const response = await fetch(`${API_BASE}/admin/leads?limit=50`);
+  if (!response.ok) {
+    throw new Error("Failed to load leads");
+  }
+  return (await response.json()) as Array<{
+    id: number;
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+    platform: string;
+    intent: string | null;
     created_at: string;
   }>;
 }

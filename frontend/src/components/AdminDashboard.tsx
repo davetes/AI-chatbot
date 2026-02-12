@@ -1,26 +1,38 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAnalytics, getMessages } from "../services/api";
+import { getAnalytics, getConversations, getLeads } from "../services/api";
 
 type Analytics = {
   total_messages: number;
   channels: Record<string, number>;
   last_24h: number;
+  total_conversations: number;
+  total_leads: number;
 };
 
-type Message = {
+type Conversation = {
   id: number;
-  channel: string;
-  user_id: string | null;
-  user_message: string;
-  bot_message: string;
+  platform: string;
+  status: string;
+  user_external_id: string;
+  created_at: string;
+};
+
+type Lead = {
+  id: number;
+  name: string | null;
+  phone: string | null;
+  email: string | null;
+  platform: string;
+  intent: string | null;
   created_at: string;
 };
 
 export default function AdminDashboard() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,9 +40,10 @@ export default function AdminDashboard() {
     const load = async () => {
       try {
         setLoading(true);
-        const [a, m] = await Promise.all([getAnalytics(), getMessages()]);
+        const [a, c, l] = await Promise.all([getAnalytics(), getConversations(), getLeads()]);
         setAnalytics(a);
-        setMessages(m);
+        setConversations(c);
+        setLeads(l);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load admin data");
       } finally {
@@ -47,6 +60,14 @@ export default function AdminDashboard() {
         <div className="admin-panel">
           <h3>Total Messages</h3>
           <p>{loading ? "..." : analytics?.total_messages ?? "0"}</p>
+        </div>
+        <div className="admin-panel">
+          <h3>Total Conversations</h3>
+          <p>{loading ? "..." : analytics?.total_conversations ?? "0"}</p>
+        </div>
+        <div className="admin-panel">
+          <h3>Total Leads</h3>
+          <p>{loading ? "..." : analytics?.total_leads ?? "0"}</p>
         </div>
         <div className="admin-panel">
           <h3>Last 24h</h3>
@@ -73,15 +94,33 @@ export default function AdminDashboard() {
       <h3 style={{ marginTop: "24px" }}>Recent Conversations</h3>
       <div className="admin-table">
         {loading && <div className="admin-row">Loading conversations...</div>}
-        {!loading && messages.length === 0 && <div className="admin-row">No conversations yet.</div>}
+        {!loading && conversations.length === 0 && <div className="admin-row">No conversations yet.</div>}
         {!loading &&
-          messages.map((msg) => (
-            <div key={msg.id} className="admin-row">
+          conversations.map((conv) => (
+            <div key={conv.id} className="admin-row">
               <div>
-                <strong>{msg.channel}</strong> • {new Date(msg.created_at).toLocaleString()}
+                <strong>{conv.platform}</strong> • {new Date(conv.created_at).toLocaleString()}
               </div>
-              <div>User: {msg.user_message}</div>
-              <div>Bot: {msg.bot_message}</div>
+              <div>User: {conv.user_external_id}</div>
+              <div>Status: {conv.status}</div>
+            </div>
+          ))}
+      </div>
+
+      <h3 style={{ marginTop: "24px" }}>Recent Leads</h3>
+      <div className="admin-table">
+        {loading && <div className="admin-row">Loading leads...</div>}
+        {!loading && leads.length === 0 && <div className="admin-row">No leads yet.</div>}
+        {!loading &&
+          leads.map((lead) => (
+            <div key={lead.id} className="admin-row">
+              <div>
+                <strong>{lead.platform}</strong> • {new Date(lead.created_at).toLocaleString()}
+              </div>
+              <div>Name: {lead.name ?? "-"}</div>
+              <div>Phone: {lead.phone ?? "-"}</div>
+              <div>Email: {lead.email ?? "-"}</div>
+              <div>Intent: {lead.intent ?? "-"}</div>
             </div>
           ))}
       </div>
