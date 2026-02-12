@@ -2,8 +2,7 @@ import json
 import re
 from typing import Dict, List, Optional, Tuple
 
-from openai import AsyncOpenAI
-
+from app.ai.provider import get_llm_client
 from app.ai.rag import retrieve_context
 from app.config import settings
 
@@ -28,8 +27,8 @@ async def generate_reply(
 ) -> Tuple[str, Optional[Dict[str, Optional[str]]]]:
     context = retrieve_context(message)
 
-    if settings.api_key:
-        client = AsyncOpenAI(api_key=settings.api_key)
+    if settings.ai_api_key:
+        client, model = get_llm_client()
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "system", "content": f"Channel: {channel}. Context: {context}"},
@@ -38,13 +37,13 @@ async def generate_reply(
         messages.append({"role": "user", "content": message})
 
         response = await client.chat.completions.create(
-            model=settings.openai_model,
+            model=model,
             messages=messages,
         )
         reply = response.choices[0].message.content or ""
 
         extract = await client.chat.completions.create(
-            model=settings.openai_model,
+            model=model,
             messages=[
                 {"role": "system", "content": EXTRACT_PROMPT},
                 {"role": "user", "content": message},
