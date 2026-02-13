@@ -15,6 +15,11 @@ class Settings:
         self.ai_model = os.getenv("AI_MODEL", "gpt-4o-mini")
         self.verify_token = os.getenv("VERIFY_TOKEN", "")
         self.database_url = os.getenv("DATABASE_URL", "")
+        if self.database_url:
+            if self.database_url.startswith("postgres://"):
+                self.database_url = self.database_url.replace("postgres://", "postgresql+asyncpg://", 1)
+            elif self.database_url.startswith("postgresql://") and "+asyncpg" not in self.database_url:
+                self.database_url = self.database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
         self.meta_api_version = os.getenv("META_API_VERSION", "v19.0")
         self.meta_access_token = os.getenv("META_ACCESS_TOKEN", "")
         self.meta_phone_number_id = os.getenv("META_PHONE_NUMBER_ID", "")
