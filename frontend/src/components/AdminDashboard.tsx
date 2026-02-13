@@ -98,10 +98,10 @@ const SECTION_META: Record<AdminSection, { title: string; description: string }>
   testing: { title: "Testing", description: "Simulate conversations and A/B test prompt variations." },
 };
 
-const INPUT_CLASS = "w-full px-4 py-2.5 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 transition-all";
-const BTN_PRIMARY = "px-4 py-2.5 rounded-xl border border-emerald-500/60 bg-emerald-500/10 text-emerald-200 text-sm font-semibold hover:bg-emerald-500/20 active:scale-[0.98] transition-all";
-const BTN_SECONDARY = "px-4 py-2.5 rounded-xl border border-slate-700/80 bg-slate-900/70 text-sm font-semibold text-slate-200 hover:border-slate-600 hover:text-white active:scale-[0.98] transition-all";
-const CARD_CLASS = "rounded-2xl border border-slate-800/80 bg-slate-950/70 p-5 shadow-lg";
+const INPUT_CLASS = "w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 transition-all";
+const BTN_PRIMARY = "px-4 py-2.5 rounded-xl border border-emerald-500/60 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200 text-sm font-semibold hover:bg-emerald-500/20 active:scale-[0.98] transition-all";
+const BTN_SECONDARY = "px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-white active:scale-[0.98] transition-all";
+const CARD_CLASS = "rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950/70 p-5 shadow-sm dark:shadow-lg";
 
 export default function AdminDashboard({
   activeSection,
@@ -536,9 +536,9 @@ export default function AdminDashboard({
       {/* Page header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 mb-1">Admin / {meta.title}</p>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-50">{meta.title}</h2>
-          <p className="mt-1 text-sm text-slate-400">{meta.description}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 mb-1">Admin / {meta.title}</p>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-50">{meta.title}</h2>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{meta.description}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
@@ -549,7 +549,7 @@ export default function AdminDashboard({
               value={globalSearch}
               onChange={(event) => setGlobalSearch(event.target.value)}
               placeholder="Search…"
-              className="w-56 max-w-full pl-9 pr-4 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 transition-all"
+              className="w-56 max-w-full pl-9 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 transition-all"
             />
           </div>
           {error && (
