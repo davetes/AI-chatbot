@@ -77,6 +77,9 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
     smtp_tls: "true",
   });
   const [settingsSaved, setSettingsSaved] = useState(false);
+  const [settingsSection, setSettingsSection] = useState<
+    "ai" | "messaging" | "crm" | "database" | "smtp" | null
+  >(null);
   const [emailForm, setEmailForm] = useState({ to: "", subject: "", message: "" });
   const [emailReply, setEmailReply] = useState("");
   const [loading, setLoading] = useState(true);
@@ -440,9 +443,62 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-6">
-              <div>
-                <h4 className="text-sm font-semibold text-slate-300">AI Provider</h4>
-                <div className="mt-3 space-y-4">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
+                    settingsSection === "ai"
+                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                      : "border-slate-700 text-slate-200 bg-slate-900"
+                  }`}
+                  onClick={() => setSettingsSection((prev) => (prev === "ai" ? null : "ai"))}
+                >
+                  AI Provider
+                </button>
+                <button
+                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
+                    settingsSection === "messaging"
+                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                      : "border-slate-700 text-slate-200 bg-slate-900"
+                  }`}
+                  onClick={() => setSettingsSection((prev) => (prev === "messaging" ? null : "messaging"))}
+                >
+                  Messaging Platforms
+                </button>
+                <button
+                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
+                    settingsSection === "crm"
+                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                      : "border-slate-700 text-slate-200 bg-slate-900"
+                  }`}
+                  onClick={() => setSettingsSection((prev) => (prev === "crm" ? null : "crm"))}
+                >
+                  CRM & Sheets
+                </button>
+                <button
+                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
+                    settingsSection === "database"
+                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                      : "border-slate-700 text-slate-200 bg-slate-900"
+                  }`}
+                  onClick={() => setSettingsSection((prev) => (prev === "database" ? null : "database"))}
+                >
+                  Database
+                </button>
+                <button
+                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
+                    settingsSection === "smtp"
+                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                      : "border-slate-700 text-slate-200 bg-slate-900"
+                  }`}
+                  onClick={() => setSettingsSection((prev) => (prev === "smtp" ? null : "smtp"))}
+                >
+                  SMTP Email
+                </button>
+              </div>
+
+              {settingsSection === "ai" && (
+                <div className="border border-slate-800 rounded-xl p-4 space-y-4">
+                  <h4 className="text-sm font-semibold text-slate-300">AI Provider</h4>
                   <div>
                     <label className="text-sm text-slate-400">AI Provider</label>
                     <input
@@ -480,11 +536,11 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     />
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <h4 className="text-sm font-semibold text-slate-300">Messaging Platforms</h4>
-                <div className="mt-3 space-y-4">
+              {settingsSection === "messaging" && (
+                <div className="border border-slate-800 rounded-xl p-4 space-y-4">
+                  <h4 className="text-sm font-semibold text-slate-300">Messaging Platforms</h4>
                   <div>
                     <label className="text-sm text-slate-400">Verify Token</label>
                     <input
@@ -516,7 +572,9 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <label className="text-sm text-slate-400">Meta Page Access Token</label>
                     <input
                       value={settingsForm.meta_page_access_token}
-                      onChange={(event) => setSettingsForm({ ...settingsForm, meta_page_access_token: event.target.value })}
+                      onChange={(event) =>
+                        setSettingsForm({ ...settingsForm, meta_page_access_token: event.target.value })
+                      }
                       className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
                       placeholder={settingsData?.meta_page_access_token_set ? "Configured" : "Enter page access token"}
                     />
@@ -540,11 +598,11 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     />
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <h4 className="text-sm font-semibold text-slate-300">CRM & Sheets</h4>
-                <div className="mt-3 space-y-4">
+              {settingsSection === "crm" && (
+                <div className="border border-slate-800 rounded-xl p-4 space-y-4">
+                  <h4 className="text-sm font-semibold text-slate-300">CRM & Sheets</h4>
                   <div>
                     <label className="text-sm text-slate-400">CRM Webhook URL</label>
                     <input
@@ -564,24 +622,26 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     />
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <h4 className="text-sm font-semibold text-slate-300">Database</h4>
-                <div className="mt-3">
-                  <label className="text-sm text-slate-400">Database URL</label>
-                  <input
-                    value={settingsForm.database_url}
-                    onChange={(event) => setSettingsForm({ ...settingsForm, database_url: event.target.value })}
-                    className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                    placeholder="postgresql+asyncpg://user:pass@host:5432/db"
-                  />
+              {settingsSection === "database" && (
+                <div className="border border-slate-800 rounded-xl p-4 space-y-4">
+                  <h4 className="text-sm font-semibold text-slate-300">Database</h4>
+                  <div>
+                    <label className="text-sm text-slate-400">Database URL</label>
+                    <input
+                      value={settingsForm.database_url}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, database_url: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="postgresql+asyncpg://user:pass@host:5432/db"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <h4 className="text-sm font-semibold text-slate-300">SMTP Email</h4>
-                <div className="mt-3 space-y-4">
+              {settingsSection === "smtp" && (
+                <div className="border border-slate-800 rounded-xl p-4 space-y-4">
+                  <h4 className="text-sm font-semibold text-slate-300">SMTP Email</h4>
                   <div>
                     <label className="text-sm text-slate-400">SMTP Host</label>
                     <input
@@ -639,14 +699,19 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     </select>
                   </div>
                 </div>
-              </div>
-              <button
-                onClick={handleSettingsSave}
-                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold"
-              >
-                Save Settings
-              </button>
-              {settingsSaved && <p className="text-sm text-emerald-300">Settings updated.</p>}
+              )}
+
+              {settingsSection && (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleSettingsSave}
+                    className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold"
+                  >
+                    Save Settings
+                  </button>
+                  {settingsSaved && <p className="text-sm text-emerald-300">Settings updated.</p>}
+                </div>
+              )}
             </div>
 
             <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3 text-sm">

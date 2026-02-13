@@ -22,11 +22,11 @@ class Settings:
         self.telegram_bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "")
         self.crm_webhook_url = os.getenv("CRM_WEBHOOK_URL", "")
         self.sheets_webhook_url = os.getenv("SHEETS_WEBHOOK_URL", "")
-            self.smtp_host = os.getenv("SMTP_HOST", "")
-            self.smtp_port = int(os.getenv("SMTP_PORT", "587"))
-            self.smtp_user = os.getenv("SMTP_USER", "")
-            self.smtp_pass = os.getenv("SMTP_PASS", "")
-            self.smtp_from = os.getenv("SMTP_FROM", "")
-            self.smtp_tls = os.getenv("SMTP_TLS", "true").lower() in {"1", "true", "yes"}
+        self.smtp_host = os.getenv("SMTP_HOST", "")
+        self.smtp_port = int(os.getenv("SMTP_PORT", "587"))
+        self.smtp_user = os.getenv("SMTP_USER", "")
+        self.smtp_pass = os.getenv("SMTP_PASS", "")
+        self.smtp_from = os.getenv("SMTP_FROM", "")
+        self.smtp_tls = os.getenv("SMTP_TLS", "true").lower() in {"1", "true", "yes"}
 
 settings = Settings()
