@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import joinedload
 
 from app.config import settings
 from app.models.db import Base, Conversation, Lead, Message, User
@@ -121,6 +122,7 @@ async def list_conversations(
                 Conversation.id,
                 Conversation.platform,
                 Conversation.status,
+                Conversation.handoff_enabled,
                 Conversation.created_at,
                 User.external_id.label("user_external_id"),
             )
@@ -137,11 +139,27 @@ async def list_conversations(
                 "id": row.id,
                 "platform": row.platform,
                 "status": row.status,
+                "handoff_enabled": row.handoff_enabled,
                 "created_at": row.created_at,
                 "user_external_id": row.user_external_id,
             }
             for row in result
         ]
+
+async def set_handoff(conversation_id: int, enabled: bool) -> None:
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        await session.execute(
+            update(Conversation).where(Conversation.id == conversation_id).values(handoff_enabled=enabled)
+        )
+        await session.commit()
+
+async def get_conversation(conversation_id: int) -> Optional[Conversation]:
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        stmt = select(Conversation).options(joinedload(Conversation.user)).where(Conversation.id == conversation_id)
+        result = await session.execute(stmt)
+        return result.scalar_one_or_none()
 
 async def list_messages_by_conversation(conversation_id: int, limit: int = 50) -> List[Dict[str, object]]:
     sessionmaker = get_sessionmaker()
@@ -241,3 +259,62 @@ async def get_analytics() -> Dict[str, int | Dict[str, int]]:
             "total_conversations": int(total_conversations),
             "total_leads": int(total_leads),
         }
+
+
+async def get_advanced_analytics() -> Dict[str, object]:
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        message_stmt = select(Message.conversation_id, Message.sender, Message.content, Message.created_at).order_by(
+            Message.created_at.asc()
+        )
+        result = await session.execute(message_stmt)
+        rows = list(result)
+
+        response_times: List[float] = []
+        sentiments = {"positive": 0, "neutral": 0, "negative": 0}
+        topics: Dict[str, int] = {}
+
+        positive_words = {"good", "great", "love", "awesome", "thanks", "helpful"}
+        negative_words = {"bad", "terrible", "angry", "refund", "hate", "issue"}
+
+        last_user_message: Dict[int, datetime] = {}
+        for row in rows:
+            if row.sender == "user":
+                last_user_message[row.conversation_id] = row.created_at
+                sentiment = _simple_sentiment(row.content, positive_words, negative_words)
+                sentiments[sentiment] += 1
+                for word in _extract_keywords(row.content):
+                    topics[word] = topics.get(word, 0) + 1
+            else:
+                if row.conversation_id in last_user_message:
+                    delta = (row.created_at - last_user_message[row.conversation_id]).total_seconds()
+                    if delta >= 0:
+                        response_times.append(delta)
+                    last_user_message.pop(row.conversation_id, None)
+
+        avg_response = sum(response_times) / len(response_times) if response_times else 0
+        top_topics = sorted(topics.items(), key=lambda item: item[1], reverse=True)[:6]
+
+        return {
+            "avg_response_time_seconds": round(avg_response, 2),
+            "response_samples": len(response_times),
+            "sentiment_breakdown": sentiments,
+            "top_topics": [{"topic": topic, "count": count} for topic, count in top_topics],
+        }
+
+
+def _extract_keywords(text: str) -> List[str]:
+    tokens = [token.strip(".,!?()[]{}\"'").lower() for token in text.split()]
+    stopwords = {"the", "and", "for", "with", "that", "this", "from", "your", "you", "are", "have", "has"}
+    return [token for token in tokens if token and len(token) > 3 and token not in stopwords][:5]
+
+
+def _simple_sentiment(text: str, positive: set[str], negative: set[str]) -> str:
+    lowered = text.lower()
+    pos = sum(word in lowered for word in positive)
+    neg = sum(word in lowered for word in negative)
+    if pos > neg:
+        return "positive"
+    if neg > pos:
+        return "negative"
+    return "neutral"

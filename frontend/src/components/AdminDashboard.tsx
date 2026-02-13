@@ -2,13 +2,27 @@
 
 import { useEffect, useState } from "react";
 import {
+  deleteKnowledgeBase,
+  exportReport,
+  getAdvancedAnalytics,
   getAnalytics,
+  getBotConfig,
   getConversationMessages,
   getConversations,
+  getKnowledgeBase,
   getLeads,
   getSettings,
+  getWorkflows,
+  runABTest,
+  searchKnowledgeBase,
+  sendAgentReply,
   updateSettings,
   sendEmailReply,
+  setConversationHandoff,
+  simulateConversation,
+  updateBotConfig,
+  updateWorkflows,
+  uploadKnowledgeBase,
 } from "../services/api";
 
 type Analytics = {
@@ -46,7 +60,18 @@ type Lead = {
   created_at: string;
 };
 
-type AdminSection = "dashboard" | "conversations" | "leads" | "channels" | "settings" | "email";
+type AdminSection =
+  | "dashboard"
+  | "conversations"
+  | "leads"
+  | "channels"
+  | "settings"
+  | "email"
+  | "knowledge"
+  | "bot"
+  | "workflows"
+  | "reports"
+  | "testing";
 
 export default function AdminDashboard({
   activeSection,
@@ -95,6 +120,27 @@ export default function AdminDashboard({
   const [tagDraft, setTagDraft] = useState("");
   const [emailForm, setEmailForm] = useState({ to: "", subject: "", message: "" });
   const [emailReply, setEmailReply] = useState("");
+  const [advancedAnalytics, setAdvancedAnalytics] = useState<Awaited<ReturnType<typeof getAdvancedAnalytics>> | null>(
+    null
+  );
+  const [knowledgeBase, setKnowledgeBase] = useState<Array<{ id: string; filename: string; chunks: number }>>([]);
+  const [kbResults, setKbResults] = useState<string[]>([]);
+  const [kbQuery, setKbQuery] = useState("");
+  const [botConfig, setBotConfig] = useState<{ persona: string; tone: string; system_prompt: string | null } | null>(
+    null
+  );
+  const [botForm, setBotForm] = useState({ persona: "", tone: "", system_prompt: "" });
+  const [workflowRules, setWorkflowRules] = useState<
+    Array<{ id: string; name: string; keywords: string[]; action: string }>
+  >([]);
+  const [workflowDraft, setWorkflowDraft] = useState({ name: "", keywords: "", action: "auto_reply:" });
+  const [simulatorPrompt, setSimulatorPrompt] = useState("");
+  const [simulatorTurns, setSimulatorTurns] = useState(3);
+  const [simulatorTranscript, setSimulatorTranscript] = useState<Array<{ role: string; content: string }>>([]);
+  const [abPromptA, setAbPromptA] = useState("");
+  const [abPromptB, setAbPromptB] = useState("");
+  const [abMessage, setAbMessage] = useState("");
+  const [abResult, setAbResult] = useState<{ response_a: string; response_b: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -107,16 +153,25 @@ export default function AdminDashboard({
       setLoading(true);
       const offset = (page - 1) * limit;
       const platform = platformFilter === "all" ? undefined : platformFilter;
-      const [a, c, l, s] = await Promise.all([
+      const [a, c, l, s, adv, kb, bot, workflows] = await Promise.all([
         getAnalytics(),
         getConversations(limit, offset, platform),
         getLeads(),
         getSettings(),
+        getAdvancedAnalytics(),
+        getKnowledgeBase(),
+        getBotConfig(),
+        getWorkflows(),
       ]);
       setAnalytics(a);
       setConversations(c);
       setLeads(l);
       setSettingsData(s);
+      setAdvancedAnalytics(adv);
+      setKnowledgeBase(kb);
+      setBotConfig(bot);
+      setBotForm({ persona: bot.persona, tone: bot.tone, system_prompt: bot.system_prompt ?? "" });
+      setWorkflowRules(workflows);
       setSettingsForm({
         ai_provider: s.ai_provider,
         ai_model: s.ai_model,
@@ -268,6 +323,71 @@ export default function AdminDashboard({
     setTagDraft("");
   };
 
+  const handleUploadKb = async (file: File) => {
+    const uploaded = await uploadKnowledgeBase(file);
+    setKnowledgeBase((prev) => [...prev, uploaded]);
+  };
+
+  const handleSearchKb = async () => {
+    if (!kbQuery.trim()) return;
+    const result = await searchKnowledgeBase(kbQuery.trim());
+    setKbResults(result.results);
+  };
+
+  const handleDeleteKb = async (docId: string) => {
+    await deleteKnowledgeBase(docId);
+    setKnowledgeBase((prev) => prev.filter((doc) => doc.id !== docId));
+  };
+
+  const handleBotConfigSave = async () => {
+    const updated = await updateBotConfig({
+      persona: botForm.persona || undefined,
+      tone: botForm.tone || undefined,
+      system_prompt: botForm.system_prompt || undefined,
+    });
+    setBotConfig(updated);
+  };
+
+  const handleAddWorkflow = () => {
+    const keywords = workflowDraft.keywords
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+    if (!workflowDraft.name || keywords.length === 0) return;
+    setWorkflowRules((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), name: workflowDraft.name, keywords, action: workflowDraft.action },
+    ]);
+    setWorkflowDraft({ name: "", keywords: "", action: "auto_reply:" });
+  };
+
+  const handleSaveWorkflows = async () => {
+    const updated = await updateWorkflows(workflowRules);
+    setWorkflowRules(updated);
+  };
+
+  const handleExportReport = async (type: "leads" | "messages") => {
+    const blob = await exportReport(type);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${type}-report-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSimulate = async () => {
+    const result = await simulateConversation(simulatorPrompt, simulatorTurns);
+    setSimulatorTranscript(result.transcript);
+  };
+
+  const handleAbTest = async () => {
+    const result = await runABTest(abPromptA, abPromptB, abMessage);
+    setAbResult(result);
+  };
+
   const channelEntries = analytics ? Object.entries(analytics.channels) : [];
   const userEntries = analytics ? Object.entries(analytics.users_by_platform) : [];
   const conversationEntries = analytics ? Object.entries(analytics.conversations_by_platform) : [];
@@ -399,6 +519,36 @@ export default function AdminDashboard({
                 <p className="mt-2 text-xs text-slate-500">vs. previous period · —</p>
               </div>
             ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Avg Response Time</p>
+              <p className="mt-2 text-2xl font-semibold">
+                {advancedAnalytics ? `${advancedAnalytics.avg_response_time_seconds}s` : "—"}
+              </p>
+              <p className="text-xs text-slate-500">Samples: {advancedAnalytics?.response_samples ?? 0}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Sentiment Mix</p>
+              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                {Object.entries(advancedAnalytics?.sentiment_breakdown ?? {}).map(([name, count]) => (
+                  <span key={name} className="px-2 py-1 rounded-full bg-slate-800/80 text-slate-200">
+                    {name}: {count}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Top Topics</p>
+              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                {(advancedAnalytics?.top_topics ?? []).map((topic) => (
+                  <span key={topic.topic} className="px-2 py-1 rounded-full bg-slate-800/80 text-slate-200">
+                    {topic.topic} · {topic.count}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_1fr] gap-4">
@@ -642,7 +792,12 @@ export default function AdminDashboard({
                 <h4 className="text-sm font-semibold mb-3">Conversation Detail</h4>
                 <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-slate-300">
                   <button
-                    onClick={() => setTakeoverEnabled((prev) => !prev)}
+                    onClick={async () => {
+                      if (!selectedConversation) return;
+                      const enabled = !takeoverEnabled;
+                      await setConversationHandoff(selectedConversation.id, enabled);
+                      setTakeoverEnabled(enabled);
+                    }}
                     className={`px-3 py-1.5 rounded-full border font-semibold transition ${
                       takeoverEnabled
                         ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
@@ -721,8 +876,18 @@ export default function AdminDashboard({
                       />
                       <div className="mt-2 flex items-center gap-2">
                         <button
-                          onClick={() => navigator.clipboard.writeText(replyDraft)}
+                          onClick={async () => {
+                            if (!selectedConversation || !replyDraft.trim()) return;
+                            await sendAgentReply(selectedConversation.id, replyDraft.trim());
+                            setReplyDraft("");
+                          }}
                           className="px-3 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-xs font-semibold text-emerald-200"
+                        >
+                          Send Reply
+                        </button>
+                        <button
+                          onClick={() => navigator.clipboard.writeText(replyDraft)}
+                          className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-200"
                         >
                           Copy Reply
                         </button>
@@ -1161,6 +1326,282 @@ export default function AdminDashboard({
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3 text-sm">
               <p className="text-slate-300 font-semibold">AI Reply Preview</p>
               <p className="text-slate-100 whitespace-pre-wrap">{emailReply || "No reply generated yet."}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeSection === "knowledge" && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Knowledge Base</h3>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4">
+              <div>
+                <label className="text-sm text-slate-400">Upload document (PDF/DOCX/TXT)</label>
+                <input
+                  type="file"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) handleUploadKb(file);
+                  }}
+                  className="mt-2 w-full text-sm text-slate-300"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-400">Search knowledge base</label>
+                <div className="mt-2 flex gap-2">
+                  <input
+                    value={kbQuery}
+                    onChange={(event) => setKbQuery(event.target.value)}
+                    className="flex-1 px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                  />
+                  <button
+                    onClick={handleSearchKb}
+                    className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-sm text-slate-200"
+                  >
+                    Search
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {kbResults.length === 0 && <p className="text-xs text-slate-500">No results yet.</p>}
+                {kbResults.map((result, index) => (
+                  <div key={index} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                    {result}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
+              <p className="text-sm font-semibold text-slate-300">Documents</p>
+              {knowledgeBase.length === 0 && <p className="text-xs text-slate-500">No documents uploaded.</p>}
+              {knowledgeBase.map((doc) => (
+                <div key={doc.id} className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                  <div>
+                    <p className="text-slate-200">{doc.filename}</p>
+                    <p className="text-xs text-slate-500">Chunks: {doc.chunks}</p>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteKb(doc.id)}
+                    className="px-2 py-1 rounded-lg border border-rose-500/40 text-rose-200 text-xs"
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeSection === "bot" && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Bot Personality</h3>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4">
+              <div>
+                <label className="text-sm text-slate-400">Persona</label>
+                <input
+                  value={botForm.persona}
+                  onChange={(event) => setBotForm({ ...botForm, persona: event.target.value })}
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                  placeholder="Support specialist"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-400">Tone</label>
+                <input
+                  value={botForm.tone}
+                  onChange={(event) => setBotForm({ ...botForm, tone: event.target.value })}
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                  placeholder="friendly | formal | casual"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-400">System Prompt</label>
+                <textarea
+                  value={botForm.system_prompt}
+                  onChange={(event) => setBotForm({ ...botForm, system_prompt: event.target.value })}
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100 min-h-[140px]"
+                />
+              </div>
+              <button
+                onClick={handleBotConfigSave}
+                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold"
+              >
+                Save Bot Config
+              </button>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3 text-sm">
+              <p className="text-slate-300 font-semibold">Current Config</p>
+              <p>Persona: {botConfig?.persona ?? "-"}</p>
+              <p>Tone: {botConfig?.tone ?? "-"}</p>
+              <p className="text-slate-400">Prompt: {botConfig?.system_prompt || "Default"}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeSection === "workflows" && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Automation Workflows</h3>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
+              <p className="text-sm text-slate-300 font-semibold">Add Rule</p>
+              <input
+                value={workflowDraft.name}
+                onChange={(event) => setWorkflowDraft({ ...workflowDraft, name: event.target.value })}
+                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                placeholder="Rule name"
+              />
+              <input
+                value={workflowDraft.keywords}
+                onChange={(event) => setWorkflowDraft({ ...workflowDraft, keywords: event.target.value })}
+                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                placeholder="Keywords (comma separated)"
+              />
+              <input
+                value={workflowDraft.action}
+                onChange={(event) => setWorkflowDraft({ ...workflowDraft, action: event.target.value })}
+                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                placeholder="auto_reply: Hello there"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleAddWorkflow}
+                  className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-sm text-slate-200"
+                >
+                  Add Rule
+                </button>
+                <button
+                  onClick={handleSaveWorkflows}
+                  className="px-3 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-sm text-emerald-200"
+                >
+                  Save Rules
+                </button>
+              </div>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+              <p className="text-sm font-semibold text-slate-300">Rules</p>
+              {workflowRules.length === 0 && <p className="text-xs text-slate-500">No rules configured.</p>}
+              {workflowRules.map((rule) => (
+                <div key={rule.id} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                  <p className="text-slate-200 font-semibold">{rule.name}</p>
+                  <p className="text-xs text-slate-500">Keywords: {rule.keywords.join(", ")}</p>
+                  <p className="text-xs text-slate-500">Action: {rule.action}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeSection === "reports" && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Reports & Export</h3>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
+            <p className="text-sm text-slate-300">Download CSV reports for analysis.</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleExportReport("leads")}
+                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-sm text-slate-200"
+              >
+                Export Leads
+              </button>
+              <button
+                onClick={() => handleExportReport("messages")}
+                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-sm text-slate-200"
+              >
+                Export Messages
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeSection === "testing" && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Chatbot Testing</h3>
+          </div>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
+              <p className="text-sm font-semibold text-slate-300">Conversation Simulator</p>
+              <textarea
+                value={simulatorPrompt}
+                onChange={(event) => setSimulatorPrompt(event.target.value)}
+                className="w-full rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
+                placeholder="Enter a starter message..."
+              />
+              <input
+                type="number"
+                min={1}
+                max={8}
+                value={simulatorTurns}
+                onChange={(event) => setSimulatorTurns(Number(event.target.value))}
+                className="w-24 rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+              />
+              <button
+                onClick={handleSimulate}
+                className="px-3 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-sm text-emerald-200"
+              >
+                Run Simulation
+              </button>
+              <div className="space-y-2">
+                {simulatorTranscript.map((entry, index) => (
+                  <div key={index} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                    <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{entry.role}</p>
+                    <p className="text-slate-100">{entry.content}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
+              <p className="text-sm font-semibold text-slate-300">A/B Test Prompts</p>
+              <textarea
+                value={abPromptA}
+                onChange={(event) => setAbPromptA(event.target.value)}
+                className="w-full rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
+                placeholder="Prompt A"
+              />
+              <textarea
+                value={abPromptB}
+                onChange={(event) => setAbPromptB(event.target.value)}
+                className="w-full rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
+                placeholder="Prompt B"
+              />
+              <input
+                value={abMessage}
+                onChange={(event) => setAbMessage(event.target.value)}
+                className="w-full rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                placeholder="User message"
+              />
+              <button
+                onClick={handleAbTest}
+                className="px-3 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-sm text-emerald-200"
+              >
+                Run A/B Test
+              </button>
+              {abResult && (
+                <div className="grid grid-cols-1 gap-2">
+                  <div className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                    <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Response A</p>
+                    <p className="text-slate-100">{abResult.response_a}</p>
+                  </div>
+                  <div className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                    <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Response B</p>
+                    <p className="text-slate-100">{abResult.response_b}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

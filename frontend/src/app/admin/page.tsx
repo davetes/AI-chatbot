@@ -3,7 +3,18 @@
 import { useEffect, useState } from "react";
 import AdminDashboard from "../../components/AdminDashboard";
 
-type AdminSection = "dashboard" | "conversations" | "leads" | "channels" | "settings" | "email";
+type AdminSection =
+  | "dashboard"
+  | "conversations"
+  | "leads"
+  | "channels"
+  | "settings"
+  | "email"
+  | "knowledge"
+  | "bot"
+  | "workflows"
+  | "reports"
+  | "testing";
 
 export default function AdminPage() {
   const [activeSection, setActiveSection] = useState<AdminSection>("dashboard");
@@ -29,6 +40,18 @@ export default function AdminPage() {
           break;
         case "6":
           setActiveSection("email");
+          break;
+        case "7":
+          setActiveSection("knowledge");
+          break;
+        case "8":
+          setActiveSection("bot");
+          break;
+        case "9":
+          setActiveSection("workflows");
+          break;
+        case "0":
+          setActiveSection("reports");
           break;
         default:
           break;
@@ -91,6 +114,48 @@ export default function AdminPage() {
           >
             Email
           </button>
+          <div className="mt-4 text-xs uppercase tracking-[0.14em] text-slate-500">AI & Automation</div>
+          <button
+            className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
+              activeSection === "knowledge" ? "bg-slate-900/80" : ""
+            }`}
+            onClick={() => setActiveSection("knowledge")}
+          >
+            Knowledge Base
+          </button>
+          <button
+            className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
+              activeSection === "bot" ? "bg-slate-900/80" : ""
+            }`}
+            onClick={() => setActiveSection("bot")}
+          >
+            Bot Personality
+          </button>
+          <button
+            className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
+              activeSection === "workflows" ? "bg-slate-900/80" : ""
+            }`}
+            onClick={() => setActiveSection("workflows")}
+          >
+            Workflows
+          </button>
+          <div className="mt-4 text-xs uppercase tracking-[0.14em] text-slate-500">Reports & Testing</div>
+          <button
+            className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
+              activeSection === "reports" ? "bg-slate-900/80" : ""
+            }`}
+            onClick={() => setActiveSection("reports")}
+          >
+            Reports
+          </button>
+          <button
+            className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
+              activeSection === "testing" ? "bg-slate-900/80" : ""
+            }`}
+            onClick={() => setActiveSection("testing")}
+          >
+            Testing
+          </button>
         </nav>
       </aside>
       <div className="w-full px-6 py-6 overflow-y-auto">
@@ -99,7 +164,7 @@ export default function AdminPage() {
             Admin / <span className="text-slate-200 capitalize">{activeSection}</span>
           </div>
           <div className="text-xs text-slate-500">
-            Shortcuts: Alt+1..6 to switch sections
+            Shortcuts: Alt+1..0 to switch sections
           </div>
         </div>
         <AdminDashboard activeSection={activeSection} onQuickAction={setActiveSection} />

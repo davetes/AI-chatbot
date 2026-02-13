@@ -10,6 +10,7 @@ from app.services.db import (
     get_or_create_user,
     get_recent_messages,
 )
+from app.services.workflows import match_rules
 from app.utils.logger import get_logger
 
 logger = get_logger()
@@ -23,13 +24,23 @@ async def handle_incoming_message(
     conversation = await get_or_create_conversation(platform=channel, user_id=user.id)
     history = await get_recent_messages(conversation.id, limit=10)
 
+    await add_message(conversation.id, sender="user", content=text)
+
+    if conversation.handoff_enabled:
+        return "Thanks for reaching out. A human agent will respond shortly."
+
     reply, lead = await generate_reply(
         message=text,
         channel=channel,
         history=history,
     )
 
-    await add_message(conversation.id, sender="user", content=text)
+    rules = match_rules(text)
+    for rule in rules:
+        action = rule.get("action", "")
+        if action.startswith("auto_reply:"):
+            reply = action.replace("auto_reply:", "", 1).strip() or reply
+
     await add_message(conversation.id, sender="bot", content=reply)
 
     if lead:

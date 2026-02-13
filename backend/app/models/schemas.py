@@ -26,6 +26,7 @@ class ConversationOut(BaseModel):
     id: int
     platform: str
     status: str
+    handoff_enabled: bool
     user_external_id: str
     created_at: datetime
 
@@ -55,6 +56,12 @@ class AnalyticsResponse(BaseModel):
     total_conversations: int
     total_leads: int
 
+class AdvancedAnalyticsResponse(BaseModel):
+    avg_response_time_seconds: float
+    response_samples: int
+    sentiment_breakdown: Dict[str, int]
+    top_topics: List[Dict[str, int | str]]
+
 class SettingsView(BaseModel):
     ai_provider: str
     ai_model: str
@@ -75,6 +82,9 @@ class SettingsView(BaseModel):
     smtp_from: Optional[str]
     smtp_tls: bool
     smtp_configured: bool
+    bot_persona: str
+    bot_tone: str
+    bot_system_prompt: Optional[str]
 
 class SettingsUpdate(BaseModel):
     ai_provider: Optional[str] = None
@@ -96,6 +106,61 @@ class SettingsUpdate(BaseModel):
     smtp_pass: Optional[str] = None
     smtp_from: Optional[str] = None
     smtp_tls: Optional[bool] = None
+    bot_persona: Optional[str] = None
+    bot_tone: Optional[str] = None
+    bot_system_prompt: Optional[str] = None
+
+class HandoffUpdate(BaseModel):
+    enabled: bool
+
+class AgentReplyRequest(BaseModel):
+    message: str
+
+class KnowledgeBaseDoc(BaseModel):
+    id: str
+    filename: str
+    chunks: int
+
+class KnowledgeBaseSearchRequest(BaseModel):
+    query: str
+
+class KnowledgeBaseSearchResponse(BaseModel):
+    results: List[str]
+
+class BotConfigView(BaseModel):
+    persona: str
+    tone: str
+    system_prompt: Optional[str]
+
+class BotConfigUpdate(BaseModel):
+    persona: Optional[str] = None
+    tone: Optional[str] = None
+    system_prompt: Optional[str] = None
+
+class WorkflowRule(BaseModel):
+    id: str
+    name: str
+    keywords: List[str]
+    action: str
+
+class WorkflowRulesUpdate(BaseModel):
+    rules: List[WorkflowRule]
+
+class SimulationRequest(BaseModel):
+    prompt: str
+    turns: int = 3
+
+class SimulationResponse(BaseModel):
+    transcript: List[Dict[str, str]]
+
+class ABTestRequest(BaseModel):
+    prompt_a: str
+    prompt_b: str
+    message: str
+
+class ABTestResponse(BaseModel):
+    response_a: str
+    response_b: str
 
 class EmailReplyRequest(BaseModel):
     to: str

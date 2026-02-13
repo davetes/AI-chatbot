@@ -2,11 +2,13 @@ import json
 import re
 from typing import Dict, List, Optional, Tuple
 
+from langdetect import detect
+
 from app.ai.provider import get_llm_client
 from app.ai.rag import retrieve_context
 from app.config import settings
 
-SYSTEM_PROMPT = (
+BASE_SYSTEM_PROMPT = (
     "You are a business chatbot for lead collection. "
     "You must be friendly and concise. "
     "Your goal is to collect lead info: name, phone, email, company, and intent. "
@@ -26,13 +28,17 @@ async def generate_reply(
     history: List[Dict[str, str]],
 ) -> Tuple[str, Optional[Dict[str, Optional[str]]]]:
     context = retrieve_context(message)
+    language = _detect_language(message)
+    system_prompt = _build_system_prompt()
 
     if settings.ai_api_key:
         client, model = get_llm_client()
         messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "system", "content": f"Channel: {channel}. Context: {context}"},
         ]
+        if language != "en":
+            messages.append({"role": "system", "content": f"Respond in {language}."})
         messages.extend(history)
         messages.append({"role": "user", "content": message})
 
@@ -57,6 +63,24 @@ async def generate_reply(
         lead = _heuristic_lead(message)
 
     return reply, lead
+
+
+def _build_system_prompt() -> str:
+    prompt = BASE_SYSTEM_PROMPT
+    if settings.bot_persona:
+        prompt += f" Persona: {settings.bot_persona}."
+    if settings.bot_tone:
+        prompt += f" Tone: {settings.bot_tone}."
+    if settings.bot_system_prompt:
+        prompt += f" Additional instructions: {settings.bot_system_prompt}"
+    return prompt
+
+
+def _detect_language(message: str) -> str:
+    try:
+        return detect(message) or "en"
+    except Exception:
+        return "en"
 
 
 def _safe_json(raw: str) -> Dict[str, Optional[str]]:

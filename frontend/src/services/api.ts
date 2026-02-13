@@ -1,4 +1,13 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
+const ADMIN_KEY = process.env.NEXT_PUBLIC_ADMIN_API_KEY;
+
+function adminHeaders(extra?: Record<string, string>): HeadersInit {
+  const headers: Record<string, string> = { ...(extra ?? {}) };
+  if (ADMIN_KEY) {
+    headers["x-admin-key"] = ADMIN_KEY;
+  }
+  return headers;
+}
 
 export async function sendMessage(message: string): Promise<string> {
   const response = await fetch(`${API_BASE}/webchat/message`, {
@@ -24,7 +33,7 @@ export async function getAnalytics(): Promise<{
   total_conversations: number;
   total_leads: number;
 }> {
-  const response = await fetch(`${API_BASE}/admin/analytics`);
+  const response = await fetch(`${API_BASE}/admin/analytics`, { headers: adminHeaders() });
   if (!response.ok) {
     throw new Error("Failed to load analytics");
   }
@@ -42,7 +51,7 @@ export async function getAnalytics(): Promise<{
 export async function getMessages(): Promise<
   Array<{ id: number; sender: string; content: string; platform: string; user_external_id: string; conversation_id: number; created_at: string }>
 > {
-  const response = await fetch(`${API_BASE}/admin/messages?limit=50`);
+  const response = await fetch(`${API_BASE}/admin/messages?limit=50`, { headers: adminHeaders() });
   if (!response.ok) {
     throw new Error("Failed to load messages");
   }
@@ -64,7 +73,7 @@ export async function getConversations(limit = 50, offset = 0, platform?: string
   if (platform) {
     params.set("platform", platform);
   }
-  const response = await fetch(`${API_BASE}/admin/conversations?${params.toString()}`);
+  const response = await fetch(`${API_BASE}/admin/conversations?${params.toString()}`, { headers: adminHeaders() });
   if (!response.ok) {
     throw new Error("Failed to load conversations");
   }
@@ -80,7 +89,7 @@ export async function getConversations(limit = 50, offset = 0, platform?: string
 export async function getConversationMessages(conversationId: number, limit = 50): Promise<
   Array<{ id: number; sender: string; content: string; created_at: string }>
 > {
-  const response = await fetch(`${API_BASE}/admin/conversations/${conversationId}/messages?limit=${limit}`);
+  const response = await fetch(`${API_BASE}/admin/conversations/${conversationId}/messages?limit=${limit}` , { headers: adminHeaders() });
   if (!response.ok) {
     throw new Error("Failed to load conversation messages");
   }
@@ -95,7 +104,7 @@ export async function getConversationMessages(conversationId: number, limit = 50
 export async function getLeads(): Promise<
   Array<{ id: number; name: string | null; phone: string | null; email: string | null; platform: string; intent: string | null; created_at: string }>
 > {
-  const response = await fetch(`${API_BASE}/admin/leads?limit=50`);
+  const response = await fetch(`${API_BASE}/admin/leads?limit=50`, { headers: adminHeaders() });
   if (!response.ok) {
     throw new Error("Failed to load leads");
   }
@@ -131,7 +140,7 @@ export async function getSettings(): Promise<{
   smtp_tls: boolean;
   smtp_configured: boolean;
 }> {
-  const response = await fetch(`${API_BASE}/admin/settings`);
+  const response = await fetch(`${API_BASE}/admin/settings`, { headers: adminHeaders() });
   if (!response.ok) {
     throw new Error("Failed to load settings");
   }
@@ -181,9 +190,7 @@ export async function updateSettings(payload: {
 }): Promise<ReturnType<typeof getSettings>> {
   const response = await fetch(`${API_BASE}/admin/settings`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: adminHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(payload),
   });
   if (!response.ok) {
@@ -195,13 +202,176 @@ export async function updateSettings(payload: {
 export async function sendEmailReply(to: string, subject: string, message: string): Promise<{ reply: string }> {
   const response = await fetch(`${API_BASE}/admin/email/reply`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: adminHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ to, subject, message }),
   });
   if (!response.ok) {
     throw new Error("Failed to send email reply");
   }
   return (await response.json()) as { reply: string };
+}
+
+export async function getAdvancedAnalytics(): Promise<{
+  avg_response_time_seconds: number;
+  response_samples: number;
+  sentiment_breakdown: Record<string, number>;
+  top_topics: Array<{ topic: string; count: number }>;
+}> {
+  const response = await fetch(`${API_BASE}/admin/analytics/advanced`, { headers: adminHeaders() });
+  if (!response.ok) {
+    throw new Error("Failed to load advanced analytics");
+  }
+  return (await response.json()) as {
+    avg_response_time_seconds: number;
+    response_samples: number;
+    sentiment_breakdown: Record<string, number>;
+    top_topics: Array<{ topic: string; count: number }>;
+  };
+}
+
+export async function setConversationHandoff(conversationId: number, enabled: boolean): Promise<{ handoff_enabled: boolean }> {
+  const response = await fetch(`${API_BASE}/admin/conversations/${conversationId}/handoff`, {
+    method: "PATCH",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ enabled }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to update handoff status");
+  }
+  return (await response.json()) as { handoff_enabled: boolean };
+}
+
+export async function sendAgentReply(conversationId: number, message: string): Promise<{ status: string }> {
+  const response = await fetch(`${API_BASE}/admin/conversations/${conversationId}/reply`, {
+    method: "POST",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ message }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to send agent reply");
+  }
+  return (await response.json()) as { status: string };
+}
+
+export async function getKnowledgeBase(): Promise<Array<{ id: string; filename: string; chunks: number }>> {
+  const response = await fetch(`${API_BASE}/admin/knowledge-base`, { headers: adminHeaders() });
+  if (!response.ok) {
+    throw new Error("Failed to load knowledge base");
+  }
+  return (await response.json()) as Array<{ id: string; filename: string; chunks: number }>;
+}
+
+export async function uploadKnowledgeBase(file: File): Promise<{ id: string; filename: string; chunks: number }> {
+  const form = new FormData();
+  form.append("file", file);
+  const response = await fetch(`${API_BASE}/admin/knowledge-base/upload`, {
+    method: "POST",
+    headers: adminHeaders(),
+    body: form,
+  });
+  if (!response.ok) {
+    throw new Error("Failed to upload document");
+  }
+  return (await response.json()) as { id: string; filename: string; chunks: number };
+}
+
+export async function deleteKnowledgeBase(docId: string): Promise<{ status: string }> {
+  const response = await fetch(`${API_BASE}/admin/knowledge-base/${docId}`, {
+    method: "DELETE",
+    headers: adminHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to delete document");
+  }
+  return (await response.json()) as { status: string };
+}
+
+export async function searchKnowledgeBase(query: string): Promise<{ results: string[] }> {
+  const response = await fetch(`${API_BASE}/admin/knowledge-base/search`, {
+    method: "POST",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ query }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to search knowledge base");
+  }
+  return (await response.json()) as { results: string[] };
+}
+
+export async function getBotConfig(): Promise<{ persona: string; tone: string; system_prompt: string | null }> {
+  const response = await fetch(`${API_BASE}/admin/bot/config`, { headers: adminHeaders() });
+  if (!response.ok) {
+    throw new Error("Failed to load bot config");
+  }
+  return (await response.json()) as { persona: string; tone: string; system_prompt: string | null };
+}
+
+export async function updateBotConfig(payload: {
+  persona?: string;
+  tone?: string;
+  system_prompt?: string;
+}): Promise<{ persona: string; tone: string; system_prompt: string | null }> {
+  const response = await fetch(`${API_BASE}/admin/bot/config`, {
+    method: "POST",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to update bot config");
+  }
+  return (await response.json()) as { persona: string; tone: string; system_prompt: string | null };
+}
+
+export async function getWorkflows(): Promise<Array<{ id: string; name: string; keywords: string[]; action: string }>> {
+  const response = await fetch(`${API_BASE}/admin/workflows`, { headers: adminHeaders() });
+  if (!response.ok) {
+    throw new Error("Failed to load workflows");
+  }
+  return (await response.json()) as Array<{ id: string; name: string; keywords: string[]; action: string }>;
+}
+
+export async function updateWorkflows(rules: Array<{ id: string; name: string; keywords: string[]; action: string }>): Promise<
+  Array<{ id: string; name: string; keywords: string[]; action: string }>
+> {
+  const response = await fetch(`${API_BASE}/admin/workflows`, {
+    method: "POST",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ rules }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to update workflows");
+  }
+  return (await response.json()) as Array<{ id: string; name: string; keywords: string[]; action: string }>;
+}
+
+export async function exportReport(reportType: "leads" | "messages" = "leads"): Promise<Blob> {
+  const response = await fetch(`${API_BASE}/admin/reports/export?report_type=${reportType}`, { headers: adminHeaders() });
+  if (!response.ok) {
+    throw new Error("Failed to export report");
+  }
+  return await response.blob();
+}
+
+export async function simulateConversation(prompt: string, turns: number): Promise<{ transcript: Array<{ role: string; content: string }> }> {
+  const response = await fetch(`${API_BASE}/admin/testing/simulate`, {
+    method: "POST",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ prompt, turns }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to simulate conversation");
+  }
+  return (await response.json()) as { transcript: Array<{ role: string; content: string }> };
+}
+
+export async function runABTest(promptA: string, promptB: string, message: string): Promise<{ response_a: string; response_b: string }> {
+  const response = await fetch(`${API_BASE}/admin/testing/ab`, {
+    method: "POST",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ prompt_a: promptA, prompt_b: promptB, message }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to run A/B test");
+  }
+  return (await response.json()) as { response_a: string; response_b: string };
 }
