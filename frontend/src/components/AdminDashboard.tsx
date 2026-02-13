@@ -585,8 +585,8 @@ export default function AdminDashboard({
                   key={range.key}
                   onClick={() => setTimeRange(range.key)}
                   className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition ${timeRange === range.key
-                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                    : "border-slate-700/80 text-slate-300 bg-slate-900/70"
+                    ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
+                    : "border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/70"
                     }`}
                 >
                   {range.label}
@@ -603,7 +603,7 @@ export default function AdminDashboard({
                 <button
                   key={action.section}
                   onClick={() => onQuickAction?.(action.section)}
-                  className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-200 hover:border-slate-500 transition"
+                  className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-900/70 text-xs font-semibold text-slate-600 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 transition"
                 >
                   {action.label}
                 </button>
@@ -620,9 +620,9 @@ export default function AdminDashboard({
             ].map((card) => (
               <div
                 key={card.label}
-                className={`rounded-2xl border border-slate-800/80 bg-gradient-to-br ${card.accent} to-transparent p-4 shadow-lg`}
+                className={`rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-gradient-to-br ${card.accent} to-transparent p-4 shadow-lg`}
               >
-                <p className="text-sm text-slate-400">{card.label}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{card.label}</p>
                 <p className="text-3xl font-semibold mt-2">{loading ? "..." : card.value}</p>
                 <p className="mt-2 text-xs text-slate-500">vs. previous period · —</p>
               </div>
@@ -630,28 +630,28 @@ export default function AdminDashboard({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 p-4 shadow-sm dark:shadow-lg">
               <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Avg Response Time</p>
               <p className="mt-2 text-2xl font-semibold">
                 {advancedAnalytics ? `${advancedAnalytics.avg_response_time_seconds}s` : "—"}
               </p>
-              <p className="text-xs text-slate-500">Samples: {advancedAnalytics?.response_samples ?? 0}</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">Samples: {advancedAnalytics?.response_samples ?? 0}</p>
             </div>
-            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 p-4 shadow-sm dark:shadow-lg">
               <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Sentiment Mix</p>
               <div className="mt-2 flex flex-wrap gap-2 text-xs">
                 {Object.entries(advancedAnalytics?.sentiment_breakdown ?? {}).map(([name, count]) => (
-                  <span key={name} className="px-2 py-1 rounded-full bg-slate-800/80 text-slate-200">
+                  <span key={name} className="px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200">
                     {name}: {count}
                   </span>
                 ))}
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 p-4 shadow-sm dark:shadow-lg">
               <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Top Topics</p>
               <div className="mt-2 flex flex-wrap gap-2 text-xs">
                 {(advancedAnalytics?.top_topics ?? []).map((topic) => (
-                  <span key={topic.topic} className="px-2 py-1 rounded-full bg-slate-800/80 text-slate-200">
+                  <span key={topic.topic} className="px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200">
                     {topic.topic} · {topic.count}
                   </span>
                 ))}
@@ -660,8 +660,8 @@ export default function AdminDashboard({
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_1fr] gap-4">
-            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
-              <h3 className="text-sm text-slate-300 mb-3">Conversion Funnel</h3>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 p-4 shadow-sm dark:shadow-lg">
+              <h3 className="text-sm text-slate-600 dark:text-slate-300 mb-3">Conversion Funnel</h3>
               <div className="space-y-3">
                 {[
                   { label: "Visitors", value: totalUsers, max: Math.max(totalUsers, analytics?.total_conversations ?? 0, analytics?.total_leads ?? 0) },
@@ -673,7 +673,7 @@ export default function AdminDashboard({
                       <span>{step.label}</span>
                       <span>{loading ? "..." : step.value}</span>
                     </div>
-                    <div className="mt-2 h-2 rounded-full bg-slate-800">
+                    <div className="mt-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800">
                       <div
                         className="h-2 rounded-full bg-emerald-500/70"
                         style={{ width: `${step.max ? Math.min(100, (step.value / step.max) * 100) : 0}%` }}
@@ -683,8 +683,8 @@ export default function AdminDashboard({
                 ))}
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
-              <h3 className="text-sm text-slate-300 mb-3">System Health</h3>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 p-4 shadow-sm dark:shadow-lg">
+              <h3 className="text-sm text-slate-600 dark:text-slate-300 mb-3">System Health</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
                   {
@@ -704,7 +704,7 @@ export default function AdminDashboard({
                     value: settingsData?.smtp_configured ? "Configured" : "Missing",
                   },
                 ].map((status) => (
-                  <div key={status.label} className="rounded-xl border border-slate-800/80 bg-slate-900/70 p-3">
+                  <div key={status.label} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/70 p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{status.label}</p>
                     <p className="mt-1 text-sm font-semibold text-slate-200">{status.value}</p>
                   </div>
@@ -713,37 +713,37 @@ export default function AdminDashboard({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
-            <h3 className="text-sm text-slate-300 mb-3">Recent Activity</h3>
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 p-4 shadow-sm dark:shadow-lg">
+            <h3 className="text-sm text-slate-600 dark:text-slate-300 mb-3">Recent Activity</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {loading && <div className="text-sm text-slate-400">Loading…</div>}
-              {!loading && activityItems.length === 0 && <div className="text-sm text-slate-400">No activity yet.</div>}
+              {loading && <div className="text-sm text-slate-500 dark:text-slate-400">Loading…</div>}
+              {!loading && activityItems.length === 0 && <div className="text-sm text-slate-500 dark:text-slate-400">No activity yet.</div>}
               {!loading &&
                 activityItems.map((item) => (
-                  <div key={item.id} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3">
+                  <div key={item.id} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3">
                     <div className="flex items-center justify-between text-xs text-slate-400">
                       <span className="uppercase tracking-[0.12em]">{item.type}</span>
                       <span>{new Date(item.created_at).toLocaleString()}</span>
                     </div>
                     <p className="mt-2 text-sm font-semibold text-slate-100">{item.title}</p>
-                    <p className="text-xs text-slate-400">{item.subtitle}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{item.subtitle}</p>
                   </div>
                 ))}
             </div>
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
-              <h3 className="text-sm text-slate-300 mb-3">Users by Platform</h3>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 p-4 shadow-sm dark:shadow-lg">
+              <h3 className="text-sm text-slate-600 dark:text-slate-300 mb-3">Users by Platform</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {loading && <div className="text-sm text-slate-400">Loading…</div>}
-                {!loading && userEntries.length === 0 && <div className="text-sm text-slate-400">No data</div>}
+                {loading && <div className="text-sm text-slate-500 dark:text-slate-400">Loading…</div>}
+                {!loading && userEntries.length === 0 && <div className="text-sm text-slate-500 dark:text-slate-400">No data</div>}
                 {!loading &&
                   userEntries.map(([name, count]) => (
-                    <div key={name} className="p-3 rounded-xl border border-slate-800/80 bg-slate-900/70">
+                    <div key={name} className="p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/70">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{name}</p>
                       <p className="text-2xl font-semibold">{count}</p>
-                      <div className="mt-2 h-1.5 rounded-full bg-slate-800">
+                      <div className="mt-2 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800">
                         <div
                           className="h-1.5 rounded-full bg-emerald-500/70"
                           style={{ width: `${totalUsers ? Math.min(100, (count / totalUsers) * 100) : 0}%` }}
@@ -753,19 +753,19 @@ export default function AdminDashboard({
                   ))}
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
-              <h3 className="text-sm text-slate-300 mb-3">Conversations by Platform</h3>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/80 p-4 shadow-sm dark:shadow-lg">
+              <h3 className="text-sm text-slate-600 dark:text-slate-300 mb-3">Conversations by Platform</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {loading && <div className="text-sm text-slate-400">Loading…</div>}
+                {loading && <div className="text-sm text-slate-500 dark:text-slate-400">Loading…</div>}
                 {!loading && conversationEntries.length === 0 && (
-                  <div className="text-sm text-slate-400">No data</div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400">No data</div>
                 )}
                 {!loading &&
                   conversationEntries.map(([name, count]) => (
-                    <div key={name} className="p-3 rounded-xl border border-slate-800/80 bg-slate-900/70">
+                    <div key={name} className="p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/70">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{name}</p>
                       <p className="text-2xl font-semibold">{count}</p>
-                      <div className="mt-2 h-1.5 rounded-full bg-slate-800">
+                      <div className="mt-2 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800">
                         <div
                           className="h-1.5 rounded-full bg-sky-500/70"
                           style={{
@@ -788,16 +788,16 @@ export default function AdminDashboard({
           </div>
           <div className="flex flex-wrap gap-2">
             {loading && (
-              <span className="px-3 py-1 rounded-full bg-slate-800/80 text-xs">Loading…</span>
+              <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 text-xs">Loading…</span>
             )}
             {!loading && channelEntries.length === 0 && (
-              <span className="px-3 py-1 rounded-full bg-slate-800/80 text-xs">No data</span>
+              <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 text-xs">No data</span>
             )}
             {!loading &&
               channelEntries.map(([name, count]) => (
                 <span
                   key={name}
-                  className="px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700/80 text-xs text-slate-200"
+                  className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/80 text-xs text-slate-700 dark:text-slate-200"
                 >
                   {name} · {count}
                 </span>
@@ -828,7 +828,7 @@ export default function AdminDashboard({
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search by user ID..."
-                  className="px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                  className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                 />
                 <select
                   value={platformFilter}
@@ -836,7 +836,7 @@ export default function AdminDashboard({
                     setPage(1);
                     setPlatformFilter(event.target.value);
                   }}
-                  className="px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                  className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                 >
                   <option value="all">All Platforms</option>
                   <option value="whatsapp">WhatsApp</option>
@@ -905,23 +905,23 @@ export default function AdminDashboard({
                   <button
                     onClick={() => selectedConversation && handleToggleHandoff(selectedConversation)}
                     className={`px-3 py-1.5 rounded-full border font-semibold transition ${selectedConversation?.handoff_enabled
-                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700/80 text-slate-300 bg-slate-900/70"
+                      ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
+                      : "border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/70"
                       }`}
                   >
                     {selectedConversation?.handoff_enabled ? "Agent takeover: ON" : "Agent takeover: OFF"}
                   </button>
                   <span className="text-slate-500">Live preview enabled</span>
                 </div>
-                {!selectedConversation && <p className="text-sm text-slate-400">Select a conversation to view messages.</p>}
+                {!selectedConversation && <p className="text-sm text-slate-500 dark:text-slate-400">Select a conversation to view messages.</p>}
                 {selectedConversation && (
                   <div className="space-y-3">
                     {conversationMessages.length === 0 && (
-                      <p className="text-sm text-slate-400">No messages yet.</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">No messages yet.</p>
                     )}
                     {conversationMessages.map((msg) => (
                       <div key={msg.id} className="flex flex-col gap-1 text-sm rounded-xl border border-slate-800/70 bg-slate-900/60 p-3">
-                        <span className="text-slate-400">
+                        <span className="text-slate-500 dark:text-slate-400">
                           {msg.sender} · {new Date(msg.created_at).toLocaleString()}
                         </span>
                         <span className="text-slate-100">{msg.content}</span>
@@ -932,25 +932,25 @@ export default function AdminDashboard({
                       <div className="mt-2 flex flex-wrap gap-2">
                         {(selectedConversation && conversationTags[selectedConversation.id] ? conversationTags[selectedConversation.id] : []).map(
                           (tag) => (
-                            <span key={tag} className="px-2 py-1 rounded-full bg-slate-800/80 text-slate-200 text-xs">
+                            <span key={tag} className="px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 text-xs">
                               {tag}
                             </span>
                           )
                         )}
                         {(!selectedConversation || (conversationTags[selectedConversation.id] ?? []).length === 0) && (
-                          <span className="text-xs text-slate-500">No tags yet.</span>
+                          <span className="text-xs text-slate-400 dark:text-slate-500">No tags yet.</span>
                         )}
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <input
                           value={tagDraft}
                           onChange={(event) => setTagDraft(event.target.value)}
-                          className="flex-1 min-w-[160px] rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-xs text-slate-100"
+                          className="flex-1 min-w-[160px] rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-xs text-slate-100"
                           placeholder="Add a tag"
                         />
                         <button
                           onClick={() => selectedConversation && addConversationTag(selectedConversation.id)}
-                          className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-200"
+                          className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-200"
                         >
                           Add Tag
                         </button>
@@ -976,7 +976,7 @@ export default function AdminDashboard({
                       <textarea
                         value={replyDraft}
                         onChange={(event) => setReplyDraft(event.target.value)}
-                        className="mt-3 w-full rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[90px]"
+                        className="mt-3 w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[90px]"
                         placeholder="Draft a reply..."
                       />
                       <div className="mt-2 flex items-center gap-2">
@@ -992,11 +992,11 @@ export default function AdminDashboard({
                         </button>
                         <button
                           onClick={() => navigator.clipboard.writeText(replyDraft)}
-                          className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-200"
+                          className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-200"
                         >
                           Copy Reply
                         </button>
-                        <span className="text-xs text-slate-500">Paste into your chat tool to send.</span>
+                        <span className="text-xs text-slate-400 dark:text-slate-500">Paste into your chat tool to send.</span>
                       </div>
                     </div>
                   </div>
@@ -1014,25 +1014,25 @@ export default function AdminDashboard({
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => exportLeadsCsv(filteredLeads)}
-                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-200"
+                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-200"
               >
                 Export CSV
               </button>
               <button
                 onClick={() => exportLeadsCsv(filteredLeads.filter((lead) => selectedLeadIds.includes(lead.id)))}
-                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-200 disabled:opacity-50"
+                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-200 disabled:opacity-50"
                 disabled={selectedLeadIds.length === 0}
               >
                 Export Selected
               </button>
               <button
-                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-500"
+                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-500"
                 disabled
               >
                 Bulk Assign
               </button>
               <button
-                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-500"
+                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-500"
                 disabled
               >
                 Bulk Tag
@@ -1071,12 +1071,12 @@ export default function AdminDashboard({
                     <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
                       {lead.platform}
                     </span>
-                    <span className="px-2 py-1 rounded-full bg-slate-800/80 text-slate-200 text-xs font-semibold">
+                    <span className="px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 text-xs font-semibold">
                       Score: {scoreLead(lead)}
                     </span>
                     <span>{new Date(lead.created_at).toLocaleString()}</span>
                   </div>
-                  <div className="mt-2 h-1.5 rounded-full bg-slate-800">
+                  <div className="mt-2 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800">
                     <div
                       className="h-1.5 rounded-full bg-emerald-500/70"
                       style={{ width: `${scoreLead(lead)}%` }}
@@ -1104,7 +1104,7 @@ export default function AdminDashboard({
               <div className="flex flex-wrap gap-2">
                 <button
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "ai"
-                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                    ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
                     : "border-slate-700/80 text-slate-200 bg-slate-900/70"
                     }`}
                   onClick={() => setSettingsSection((prev) => (prev === "ai" ? null : "ai"))}
@@ -1113,7 +1113,7 @@ export default function AdminDashboard({
                 </button>
                 <button
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "messaging"
-                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                    ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
                     : "border-slate-700/80 text-slate-200 bg-slate-900/70"
                     }`}
                   onClick={() => setSettingsSection((prev) => (prev === "messaging" ? null : "messaging"))}
@@ -1122,7 +1122,7 @@ export default function AdminDashboard({
                 </button>
                 <button
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "crm"
-                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                    ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
                     : "border-slate-700/80 text-slate-200 bg-slate-900/70"
                     }`}
                   onClick={() => setSettingsSection((prev) => (prev === "crm" ? null : "crm"))}
@@ -1131,7 +1131,7 @@ export default function AdminDashboard({
                 </button>
                 <button
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "database"
-                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                    ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
                     : "border-slate-700/80 text-slate-200 bg-slate-900/70"
                     }`}
                   onClick={() => setSettingsSection((prev) => (prev === "database" ? null : "database"))}
@@ -1140,7 +1140,7 @@ export default function AdminDashboard({
                 </button>
                 <button
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "smtp"
-                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                    ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
                     : "border-slate-700/80 text-slate-200 bg-slate-900/70"
                     }`}
                   onClick={() => setSettingsSection((prev) => (prev === "smtp" ? null : "smtp"))}
@@ -1153,38 +1153,38 @@ export default function AdminDashboard({
                 <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
                   <h4 className="text-sm font-semibold text-slate-300">AI Provider</h4>
                   <div>
-                    <label className="text-sm text-slate-400">AI Provider</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">AI Provider</label>
                     <input
                       value={settingsForm.ai_provider}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_provider: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="openai | groq"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">AI Model</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">AI Model</label>
                     <input
                       value={settingsForm.ai_model}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_model: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="gpt-4o-mini | llama3-8b-8192"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">AI Base URL</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">AI Base URL</label>
                     <input
                       value={settingsForm.ai_base_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_base_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="https://api.groq.com/openai/v1"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">AI API Key</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">AI API Key</label>
                     <input
                       value={settingsForm.ai_api_key}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_api_key: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder={settingsData?.has_ai_api_key ? "Configured" : "Enter API key"}
                     />
                   </div>
@@ -1195,58 +1195,58 @@ export default function AdminDashboard({
                 <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
                   <h4 className="text-sm font-semibold text-slate-300">Messaging Platforms</h4>
                   <div>
-                    <label className="text-sm text-slate-400">Verify Token</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">Verify Token</label>
                     <input
                       value={settingsForm.verify_token}
                       onChange={(event) => setSettingsForm({ ...settingsForm, verify_token: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder={settingsData?.verify_token_set ? "Configured" : "Enter verify token"}
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">Meta API Version</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">Meta API Version</label>
                     <input
                       value={settingsForm.meta_api_version}
                       onChange={(event) => setSettingsForm({ ...settingsForm, meta_api_version: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="v19.0"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">Meta Access Token</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">Meta Access Token</label>
                     <input
                       value={settingsForm.meta_access_token}
                       onChange={(event) => setSettingsForm({ ...settingsForm, meta_access_token: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder={settingsData?.meta_access_token_set ? "Configured" : "Enter Meta access token"}
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">Meta Page Access Token</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">Meta Page Access Token</label>
                     <input
                       value={settingsForm.meta_page_access_token}
                       onChange={(event) =>
                         setSettingsForm({ ...settingsForm, meta_page_access_token: event.target.value })
                       }
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder={settingsData?.meta_page_access_token_set ? "Configured" : "Enter page access token"}
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">Meta Phone Number ID</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">Meta Phone Number ID</label>
                     <input
                       value={settingsForm.meta_phone_number_id}
                       onChange={(event) => setSettingsForm({ ...settingsForm, meta_phone_number_id: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="Enter phone number ID"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">Telegram Bot Token</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">Telegram Bot Token</label>
                     <input
                       value={settingsForm.telegram_bot_token}
                       onChange={(event) => setSettingsForm({ ...settingsForm, telegram_bot_token: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder={settingsData?.telegram_bot_token_set ? "Configured" : "Enter Telegram bot token"}
                     />
                   </div>
@@ -1257,20 +1257,20 @@ export default function AdminDashboard({
                 <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
                   <h4 className="text-sm font-semibold text-slate-300">CRM & Sheets</h4>
                   <div>
-                    <label className="text-sm text-slate-400">CRM Webhook URL</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">CRM Webhook URL</label>
                     <input
                       value={settingsForm.crm_webhook_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, crm_webhook_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="https://your-crm-webhook"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">Sheets Webhook URL</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">Sheets Webhook URL</label>
                     <input
                       value={settingsForm.sheets_webhook_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, sheets_webhook_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="https://your-sheets-webhook"
                     />
                   </div>
@@ -1281,11 +1281,11 @@ export default function AdminDashboard({
                 <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
                   <h4 className="text-sm font-semibold text-slate-300">Database</h4>
                   <div>
-                    <label className="text-sm text-slate-400">Database URL</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">Database URL</label>
                     <input
                       value={settingsForm.database_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, database_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="postgresql+asyncpg://user:pass@host:5432/db"
                     />
                   </div>
@@ -1296,56 +1296,56 @@ export default function AdminDashboard({
                 <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
                   <h4 className="text-sm font-semibold text-slate-300">SMTP Email</h4>
                   <div>
-                    <label className="text-sm text-slate-400">SMTP Host</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">SMTP Host</label>
                     <input
                       value={settingsForm.smtp_host}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_host: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="smtp.gmail.com"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">SMTP Port</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">SMTP Port</label>
                     <input
                       value={settingsForm.smtp_port}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_port: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="587"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">SMTP User</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">SMTP User</label>
                     <input
                       value={settingsForm.smtp_user}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_user: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="you@example.com"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">SMTP Password</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">SMTP Password</label>
                     <input
                       value={settingsForm.smtp_pass}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_pass: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="App password"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">SMTP From</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">SMTP From</label>
                     <input
                       value={settingsForm.smtp_from}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_from: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                       placeholder="Support <support@example.com>"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-400">SMTP TLS</label>
+                    <label className="text-sm text-slate-500 dark:text-slate-400">SMTP TLS</label>
                     <select
                       value={settingsForm.smtp_tls}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_tls: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                     >
                       <option value="true">true</option>
                       <option value="false">false</option>
@@ -1390,29 +1390,29 @@ export default function AdminDashboard({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4">
               <div>
-                <label className="text-sm text-slate-400">To</label>
+                <label className="text-sm text-slate-500 dark:text-slate-400">To</label>
                 <input
                   value={emailForm.to}
                   onChange={(event) => setEmailForm({ ...emailForm, to: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                   placeholder="user@example.com"
                 />
               </div>
               <div>
-                <label className="text-sm text-slate-400">Subject</label>
+                <label className="text-sm text-slate-500 dark:text-slate-400">Subject</label>
                 <input
                   value={emailForm.subject}
                   onChange={(event) => setEmailForm({ ...emailForm, subject: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                   placeholder="Re: Your request"
                 />
               </div>
               <div>
-                <label className="text-sm text-slate-400">Incoming Email</label>
+                <label className="text-sm text-slate-500 dark:text-slate-400">Incoming Email</label>
                 <textarea
                   value={emailForm.message}
                   onChange={(event) => setEmailForm({ ...emailForm, message: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100 min-h-[140px]"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100 min-h-[140px]"
                   placeholder="Paste the customer email here..."
                 />
               </div>
@@ -1439,7 +1439,7 @@ export default function AdminDashboard({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4">
               <div>
-                <label className="text-sm text-slate-400">Upload document (PDF/DOCX/TXT)</label>
+                <label className="text-sm text-slate-500 dark:text-slate-400">Upload document (PDF/DOCX/TXT)</label>
                 <input
                   type="file"
                   onChange={(event) => {
@@ -1450,25 +1450,25 @@ export default function AdminDashboard({
                 />
               </div>
               <div>
-                <label className="text-sm text-slate-400">Search knowledge base</label>
+                <label className="text-sm text-slate-500 dark:text-slate-400">Search knowledge base</label>
                 <div className="mt-2 flex gap-2">
                   <input
                     value={kbQuery}
                     onChange={(event) => setKbQuery(event.target.value)}
-                    className="flex-1 px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                    className="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                   />
                   <button
                     onClick={handleSearchKb}
-                    className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-sm text-slate-200"
+                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-sm text-slate-200"
                   >
                     Search
                   </button>
                 </div>
               </div>
               <div className="space-y-2">
-                {kbResults.length === 0 && <p className="text-xs text-slate-500">No results yet.</p>}
+                {kbResults.length === 0 && <p className="text-xs text-slate-400 dark:text-slate-500">No results yet.</p>}
                 {kbResults.map((result, index) => (
-                  <div key={index} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                  <div key={index} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                     {result}
                   </div>
                 ))}
@@ -1476,12 +1476,12 @@ export default function AdminDashboard({
             </div>
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
               <p className="text-sm font-semibold text-slate-300">Documents</p>
-              {knowledgeBase.length === 0 && <p className="text-xs text-slate-500">No documents uploaded.</p>}
+              {knowledgeBase.length === 0 && <p className="text-xs text-slate-400 dark:text-slate-500">No documents uploaded.</p>}
               {knowledgeBase.map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                <div key={doc.id} className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                   <div>
                     <p className="text-slate-200">{doc.filename}</p>
-                    <p className="text-xs text-slate-500">Chunks: {doc.chunks}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">Chunks: {doc.chunks}</p>
                   </div>
                   <button
                     onClick={() => handleDeleteKb(doc.id)}
@@ -1507,7 +1507,7 @@ export default function AdminDashboard({
               <textarea
                 value={intelligenceInput}
                 onChange={(event) => setIntelligenceInput(event.target.value)}
-                className="w-full min-h-[140px] rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                className="w-full min-h-[140px] rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
                 placeholder="Paste a customer message to classify intent and entities..."
               />
               <button
@@ -1521,7 +1521,7 @@ export default function AdminDashboard({
                   <p>
                     Intent: <span className="text-emerald-200">{intelligenceResult.intent}</span> · Confidence: {intelligenceResult.confidence}
                   </p>
-                  <p className="text-slate-400">Summary: {intelligenceResult.summary}</p>
+                  <p className="text-slate-500 dark:text-slate-400">Summary: {intelligenceResult.summary}</p>
                   <div>
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Entities</p>
                     <pre className="mt-2 text-xs text-slate-200 whitespace-pre-wrap">
@@ -1541,12 +1541,12 @@ export default function AdminDashboard({
             </div>
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
               <p className="text-sm text-slate-300 font-semibold">Advanced Analytics</p>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Avg response time: {advancedAnalytics?.avg_response_time_seconds ?? "-"}s · Samples: {advancedAnalytics?.response_samples ?? 0}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {Object.entries(advancedAnalytics?.sentiment_breakdown ?? {}).map(([key, value]) => (
-                  <div key={key} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                  <div key={key} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{key}</p>
                     <p className="mt-1 text-lg font-semibold text-slate-100">{value}</p>
                   </div>
@@ -1578,7 +1578,7 @@ export default function AdminDashboard({
               <select
                 value={campaignForm.platform}
                 onChange={(event) => setCampaignForm({ ...campaignForm, platform: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
               >
                 <option value="telegram">Telegram</option>
                 <option value="whatsapp">WhatsApp</option>
@@ -1589,7 +1589,7 @@ export default function AdminDashboard({
               <textarea
                 value={campaignForm.message}
                 onChange={(event) => setCampaignForm({ ...campaignForm, message: event.target.value })}
-                className="w-full min-h-[120px] rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                className="w-full min-h-[120px] rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
                 placeholder="Write a campaign message..."
               />
               <button
@@ -1604,7 +1604,7 @@ export default function AdminDashboard({
               <select
                 value={recoveryForm.platform}
                 onChange={(event) => setRecoveryForm({ ...recoveryForm, platform: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
               >
                 <option value="">All Platforms</option>
                 <option value="telegram">Telegram</option>
@@ -1616,13 +1616,13 @@ export default function AdminDashboard({
                 type="number"
                 value={recoveryForm.hours_inactive}
                 onChange={(event) => setRecoveryForm({ ...recoveryForm, hours_inactive: Number(event.target.value) })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                 placeholder="Hours inactive"
               />
               <textarea
                 value={recoveryForm.message}
                 onChange={(event) => setRecoveryForm({ ...recoveryForm, message: event.target.value })}
-                className="w-full min-h-[120px] rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                className="w-full min-h-[120px] rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
               />
               <button
                 onClick={handleRecovery}
@@ -1643,29 +1643,29 @@ export default function AdminDashboard({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4">
               <div>
-                <label className="text-sm text-slate-400">Persona</label>
+                <label className="text-sm text-slate-500 dark:text-slate-400">Persona</label>
                 <input
                   value={botForm.persona}
                   onChange={(event) => setBotForm({ ...botForm, persona: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                   placeholder="Support specialist"
                 />
               </div>
               <div>
-                <label className="text-sm text-slate-400">Tone</label>
+                <label className="text-sm text-slate-500 dark:text-slate-400">Tone</label>
                 <input
                   value={botForm.tone}
                   onChange={(event) => setBotForm({ ...botForm, tone: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                   placeholder="friendly | formal | casual"
                 />
               </div>
               <div>
-                <label className="text-sm text-slate-400">System Prompt</label>
+                <label className="text-sm text-slate-500 dark:text-slate-400">System Prompt</label>
                 <textarea
                   value={botForm.system_prompt}
                   onChange={(event) => setBotForm({ ...botForm, system_prompt: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100 min-h-[140px]"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100 min-h-[140px]"
                 />
               </div>
               <button
@@ -1679,7 +1679,7 @@ export default function AdminDashboard({
               <p className="text-slate-300 font-semibold">Current Config</p>
               <p>Persona: {botConfig?.persona ?? "-"}</p>
               <p>Tone: {botConfig?.tone ?? "-"}</p>
-              <p className="text-slate-400">Prompt: {botConfig?.system_prompt || "Default"}</p>
+              <p className="text-slate-500 dark:text-slate-400">Prompt: {botConfig?.system_prompt || "Default"}</p>
             </div>
           </div>
           <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -1688,13 +1688,13 @@ export default function AdminDashboard({
               <input
                 value={flowDraft.name}
                 onChange={(event) => setFlowDraft({ ...flowDraft, name: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                 placeholder="Flow name"
               />
               <textarea
                 value={flowDraft.nodesJson}
                 onChange={(event) => setFlowDraft({ ...flowDraft, nodesJson: event.target.value })}
-                className="w-full min-h-[140px] rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-xs text-slate-100"
+                className="w-full min-h-[140px] rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-xs text-slate-100"
                 placeholder='[{"id":"start","type":"message","label":"Welcome"}]'
               />
               <button
@@ -1706,9 +1706,9 @@ export default function AdminDashboard({
             </div>
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
               <p className="text-sm font-semibold text-slate-300">Saved Flows</p>
-              {flows.length === 0 && <p className="text-xs text-slate-500">No flows created.</p>}
+              {flows.length === 0 && <p className="text-xs text-slate-400 dark:text-slate-500">No flows created.</p>}
               {flows.map((flow) => (
-                <div key={flow.id} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                <div key={flow.id} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                   <div className="flex items-center justify-between">
                     <p className="text-slate-200 font-semibold">{flow.name}</p>
                     <button
@@ -1718,7 +1718,7 @@ export default function AdminDashboard({
                       Delete
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500">Nodes: {flow.nodes.length}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">Nodes: {flow.nodes.length}</p>
                 </div>
               ))}
             </div>
@@ -1737,25 +1737,25 @@ export default function AdminDashboard({
               <input
                 value={workflowDraft.name}
                 onChange={(event) => setWorkflowDraft({ ...workflowDraft, name: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                 placeholder="Rule name"
               />
               <input
                 value={workflowDraft.keywords}
                 onChange={(event) => setWorkflowDraft({ ...workflowDraft, keywords: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                 placeholder="Keywords (comma separated)"
               />
               <input
                 value={workflowDraft.action}
                 onChange={(event) => setWorkflowDraft({ ...workflowDraft, action: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
                 placeholder="auto_reply: Hello there"
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleAddWorkflow}
-                  className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-sm text-slate-200"
+                  className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-sm text-slate-200"
                 >
                   Add Rule
                 </button>
@@ -1769,12 +1769,12 @@ export default function AdminDashboard({
             </div>
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
               <p className="text-sm font-semibold text-slate-300">Rules</p>
-              {workflowRules.length === 0 && <p className="text-xs text-slate-500">No rules configured.</p>}
+              {workflowRules.length === 0 && <p className="text-xs text-slate-400 dark:text-slate-500">No rules configured.</p>}
               {workflowRules.map((rule) => (
-                <div key={rule.id} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                <div key={rule.id} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                   <p className="text-slate-200 font-semibold">{rule.name}</p>
-                  <p className="text-xs text-slate-500">Keywords: {rule.keywords.join(", ")}</p>
-                  <p className="text-xs text-slate-500">Action: {rule.action}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">Keywords: {rule.keywords.join(", ")}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">Action: {rule.action}</p>
                 </div>
               ))}
             </div>
@@ -1792,13 +1792,13 @@ export default function AdminDashboard({
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => handleExportReport("leads")}
-                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-sm text-slate-200"
+                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-sm text-slate-200"
               >
                 Export Leads
               </button>
               <button
                 onClick={() => handleExportReport("messages")}
-                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-sm text-slate-200"
+                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-sm text-slate-200"
               >
                 Export Messages
               </button>
@@ -1818,7 +1818,7 @@ export default function AdminDashboard({
               <textarea
                 value={simulatorPrompt}
                 onChange={(event) => setSimulatorPrompt(event.target.value)}
-                className="w-full rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
                 placeholder="Enter a starter message..."
               />
               <input
@@ -1827,7 +1827,7 @@ export default function AdminDashboard({
                 max={8}
                 value={simulatorTurns}
                 onChange={(event) => setSimulatorTurns(Number(event.target.value))}
-                className="w-24 rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                className="w-24 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
               />
               <button
                 onClick={handleSimulate}
@@ -1837,7 +1837,7 @@ export default function AdminDashboard({
               </button>
               <div className="space-y-2">
                 {simulatorTranscript.map((entry, index) => (
-                  <div key={index} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                  <div key={index} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{entry.role}</p>
                     <p className="text-slate-100">{entry.content}</p>
                   </div>
@@ -1849,19 +1849,19 @@ export default function AdminDashboard({
               <textarea
                 value={abPromptA}
                 onChange={(event) => setAbPromptA(event.target.value)}
-                className="w-full rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
                 placeholder="Prompt A"
               />
               <textarea
                 value={abPromptB}
                 onChange={(event) => setAbPromptB(event.target.value)}
-                className="w-full rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
                 placeholder="Prompt B"
               />
               <input
                 value={abMessage}
                 onChange={(event) => setAbMessage(event.target.value)}
-                className="w-full rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
                 placeholder="User message"
               />
               <button
@@ -1872,11 +1872,11 @@ export default function AdminDashboard({
               </button>
               {abResult && (
                 <div className="grid grid-cols-1 gap-2">
-                  <div className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                  <div className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Response A</p>
                     <p className="text-slate-100">{abResult.response_a}</p>
                   </div>
-                  <div className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                  <div className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Response B</p>
                     <p className="text-slate-100">{abResult.response_b}</p>
                   </div>
