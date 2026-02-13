@@ -48,7 +48,13 @@ type Lead = {
 
 type AdminSection = "dashboard" | "conversations" | "leads" | "channels" | "settings" | "email";
 
-export default function AdminDashboard({ activeSection }: { activeSection: AdminSection }) {
+export default function AdminDashboard({
+  activeSection,
+  onQuickAction,
+}: {
+  activeSection: AdminSection;
+  onQuickAction?: (section: AdminSection) => void;
+}) {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -80,6 +86,13 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
   const [settingsSection, setSettingsSection] = useState<
     "ai" | "messaging" | "crm" | "database" | "smtp" | null
   >(null);
+  const [timeRange, setTimeRange] = useState<"today" | "7d" | "30d" | "custom">("7d");
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [takeoverEnabled, setTakeoverEnabled] = useState(false);
+  const [replyDraft, setReplyDraft] = useState("");
+  const [selectedLeadIds, setSelectedLeadIds] = useState<number[]>([]);
+  const [conversationTags, setConversationTags] = useState<Record<number, string[]>>({});
+  const [tagDraft, setTagDraft] = useState("");
   const [emailForm, setEmailForm] = useState({ to: "", subject: "", message: "" });
   const [emailReply, setEmailReply] = useState("");
   const [loading, setLoading] = useState(true);
@@ -202,12 +215,97 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
     }
   };
 
+  const exportLeadsCsv = (rows: Lead[]) => {
+    const headers = ["id", "name", "phone", "email", "platform", "intent", "created_at"];
+    const csvRows = [
+      headers.join(","),
+      ...rows.map((row) =>
+        [
+          row.id,
+          row.name ?? "",
+          row.phone ?? "",
+          row.email ?? "",
+          row.platform,
+          row.intent ?? "",
+          row.created_at,
+        ]
+          .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+          .join(",")
+      ),
+    ];
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const toggleLeadSelection = (id: number) => {
+    setSelectedLeadIds((prev) => (prev.includes(id) ? prev.filter((leadId) => leadId !== id) : [...prev, id]));
+  };
+
+  const scoreLead = (lead: Lead) => {
+    let score = 0;
+    if (lead.name) score += 25;
+    if (lead.email) score += 25;
+    if (lead.phone) score += 25;
+    if (lead.intent) score += 25;
+    return score;
+  };
+
+  const addConversationTag = (conversationId: number) => {
+    const trimmed = tagDraft.trim();
+    if (!trimmed) return;
+    setConversationTags((prev) => {
+      const existing = prev[conversationId] ?? [];
+      if (existing.includes(trimmed)) return prev;
+      return { ...prev, [conversationId]: [...existing, trimmed] };
+    });
+    setTagDraft("");
+  };
+
   const channelEntries = analytics ? Object.entries(analytics.channels) : [];
   const userEntries = analytics ? Object.entries(analytics.users_by_platform) : [];
   const conversationEntries = analytics ? Object.entries(analytics.conversations_by_platform) : [];
-  const filteredConversations = conversations.filter((conv) =>
-    conv.user_external_id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const globalQuery = globalSearch.trim().toLowerCase();
+  const localQuery = searchTerm.trim().toLowerCase();
+  const filteredConversations = conversations.filter((conv) => {
+    const target = conv.user_external_id.toLowerCase();
+    const matchesLocal = localQuery ? target.includes(localQuery) : true;
+    const matchesGlobal = globalQuery ? target.includes(globalQuery) : true;
+    return matchesLocal && matchesGlobal;
+  });
+  const filteredLeads = leads.filter((lead) => {
+    const target = [lead.name, lead.email, lead.phone, lead.intent, lead.platform]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return globalQuery ? target.includes(globalQuery) : true;
+  });
+  const totalUsers = userEntries.reduce((sum, [, count]) => sum + count, 0);
+  const totalConversations = conversationEntries.reduce((sum, [, count]) => sum + count, 0);
+  const activityItems = [
+    ...conversations.map((conv) => ({
+      id: `conv-${conv.id}`,
+      type: "conversation" as const,
+      title: `Conversation with ${conv.user_external_id}`,
+      subtitle: conv.platform,
+      created_at: conv.created_at,
+    })),
+    ...leads.map((lead) => ({
+      id: `lead-${lead.id}`,
+      type: "lead" as const,
+      title: lead.name ? `Lead captured: ${lead.name}` : "Lead captured",
+      subtitle: lead.platform,
+      created_at: lead.created_at,
+    })),
+  ]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 6);
 
   return (
     <div className="w-full rounded-3xl border border-slate-800/80 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.65)]">
@@ -219,7 +317,21 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
           <h2 className="mt-3 text-3xl font-semibold tracking-tight">Dashboard</h2>
           <p className="text-slate-400">Monitor conversations, leads, and channel performance in real time.</p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative">
+            <input
+              value={globalSearch}
+              onChange={(event) => setGlobalSearch(event.target.value)}
+              placeholder="Search across dashboard..."
+              className="w-64 max-w-full px-4 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+            />
+          </div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-900/70 px-3 py-1 text-xs text-slate-300">
+            Alerts
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-800 text-[11px] text-slate-200">
+              {error ? "1" : "0"}
+            </span>
+          </span>
           <button
             className="px-4 py-2 rounded-xl border border-slate-700/80 bg-slate-900/80 text-slate-100 font-semibold hover:border-slate-500 hover:text-white transition disabled:opacity-50"
             disabled={loading}
@@ -232,6 +344,45 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
 
       {activeSection === "dashboard" && (
         <div className="space-y-6">
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-2">
+              {[
+                { key: "today" as const, label: "Today" },
+                { key: "7d" as const, label: "Last 7 days" },
+                { key: "30d" as const, label: "Last 30 days" },
+                { key: "custom" as const, label: "Custom" },
+              ].map((range) => (
+                <button
+                  key={range.key}
+                  onClick={() => setTimeRange(range.key)}
+                  className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition ${
+                    timeRange === range.key
+                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                      : "border-slate-700/80 text-slate-300 bg-slate-900/70"
+                  }`}
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: "View Conversations", section: "conversations" as const },
+                { label: "Review Leads", section: "leads" as const },
+                { label: "Update Settings", section: "settings" as const },
+                { label: "Send Email", section: "email" as const },
+              ].map((action) => (
+                <button
+                  key={action.section}
+                  onClick={() => onQuickAction?.(action.section)}
+                  className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-200 hover:border-slate-500 transition"
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {[
               { label: "Total Messages", value: analytics?.total_messages ?? "0", accent: "from-emerald-500/15" },
@@ -245,8 +396,82 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
               >
                 <p className="text-sm text-slate-400">{card.label}</p>
                 <p className="text-3xl font-semibold mt-2">{loading ? "..." : card.value}</p>
+                <p className="mt-2 text-xs text-slate-500">vs. previous period · —</p>
               </div>
             ))}
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_1fr] gap-4">
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
+              <h3 className="text-sm text-slate-300 mb-3">Conversion Funnel</h3>
+              <div className="space-y-3">
+                {[
+                  { label: "Visitors", value: totalUsers, max: Math.max(totalUsers, analytics?.total_conversations ?? 0, analytics?.total_leads ?? 0) },
+                  { label: "Conversations", value: analytics?.total_conversations ?? 0, max: Math.max(totalUsers, analytics?.total_conversations ?? 0, analytics?.total_leads ?? 0) },
+                  { label: "Leads", value: analytics?.total_leads ?? 0, max: Math.max(totalUsers, analytics?.total_conversations ?? 0, analytics?.total_leads ?? 0) },
+                ].map((step) => (
+                  <div key={step.label}>
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <span>{step.label}</span>
+                      <span>{loading ? "..." : step.value}</span>
+                    </div>
+                    <div className="mt-2 h-2 rounded-full bg-slate-800">
+                      <div
+                        className="h-2 rounded-full bg-emerald-500/70"
+                        style={{ width: `${step.max ? Math.min(100, (step.value / step.max) * 100) : 0}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
+              <h3 className="text-sm text-slate-300 mb-3">System Health</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  {
+                    label: "API Status",
+                    value: error ? "Degraded" : loading ? "Checking" : "Healthy",
+                  },
+                  {
+                    label: "Database",
+                    value: settingsData?.database_url ? "Connected" : "Missing",
+                  },
+                  {
+                    label: "Telegram Bot",
+                    value: settingsData?.telegram_bot_token_set ? "Configured" : "Missing",
+                  },
+                  {
+                    label: "Email SMTP",
+                    value: settingsData?.smtp_configured ? "Configured" : "Missing",
+                  },
+                ].map((status) => (
+                  <div key={status.label} className="rounded-xl border border-slate-800/80 bg-slate-900/70 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{status.label}</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-200">{status.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
+            <h3 className="text-sm text-slate-300 mb-3">Recent Activity</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {loading && <div className="text-sm text-slate-400">Loading…</div>}
+              {!loading && activityItems.length === 0 && <div className="text-sm text-slate-400">No activity yet.</div>}
+              {!loading &&
+                activityItems.map((item) => (
+                  <div key={item.id} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3">
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <span className="uppercase tracking-[0.12em]">{item.type}</span>
+                      <span>{new Date(item.created_at).toLocaleString()}</span>
+                    </div>
+                    <p className="mt-2 text-sm font-semibold text-slate-100">{item.title}</p>
+                    <p className="text-xs text-slate-400">{item.subtitle}</p>
+                  </div>
+                ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -260,6 +485,12 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <div key={name} className="p-3 rounded-xl border border-slate-800/80 bg-slate-900/70">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{name}</p>
                       <p className="text-2xl font-semibold">{count}</p>
+                      <div className="mt-2 h-1.5 rounded-full bg-slate-800">
+                        <div
+                          className="h-1.5 rounded-full bg-emerald-500/70"
+                          style={{ width: `${totalUsers ? Math.min(100, (count / totalUsers) * 100) : 0}%` }}
+                        />
+                      </div>
                     </div>
                   ))}
               </div>
@@ -276,6 +507,14 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <div key={name} className="p-3 rounded-xl border border-slate-800/80 bg-slate-900/70">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{name}</p>
                       <p className="text-2xl font-semibold">{count}</p>
+                      <div className="mt-2 h-1.5 rounded-full bg-slate-800">
+                        <div
+                          className="h-1.5 rounded-full bg-sky-500/70"
+                          style={{
+                            width: `${totalConversations ? Math.min(100, (count / totalConversations) * 100) : 0}%`,
+                          }}
+                        />
+                      </div>
                     </div>
                   ))}
               </div>
@@ -367,6 +606,9 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                       <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
                         {conv.platform}
                       </span>
+                      <span className="px-2 py-1 rounded-full bg-slate-800/80 text-slate-300 text-xs font-semibold">
+                        Neutral
+                      </span>
                       <span>{new Date(conv.created_at).toLocaleString()}</span>
                     </div>
                     <div className="mt-2 text-sm">
@@ -398,6 +640,19 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
             <div className="lg:w-3/5">
               <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 min-h-[220px]">
                 <h4 className="text-sm font-semibold mb-3">Conversation Detail</h4>
+                <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-slate-300">
+                  <button
+                    onClick={() => setTakeoverEnabled((prev) => !prev)}
+                    className={`px-3 py-1.5 rounded-full border font-semibold transition ${
+                      takeoverEnabled
+                        ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                        : "border-slate-700/80 text-slate-300 bg-slate-900/70"
+                    }`}
+                  >
+                    {takeoverEnabled ? "Agent takeover: ON" : "Agent takeover: OFF"}
+                  </button>
+                  <span className="text-slate-500">Live preview enabled</span>
+                </div>
                 {!selectedConversation && <p className="text-sm text-slate-400">Select a conversation to view messages.</p>}
                 {selectedConversation && (
                   <div className="space-y-3">
@@ -412,6 +667,68 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                         <span className="text-slate-100">{msg.content}</span>
                       </div>
                     ))}
+                    <div className="rounded-xl border border-slate-800/70 bg-slate-900/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Tags</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {(selectedConversation && conversationTags[selectedConversation.id] ? conversationTags[selectedConversation.id] : []).map(
+                          (tag) => (
+                            <span key={tag} className="px-2 py-1 rounded-full bg-slate-800/80 text-slate-200 text-xs">
+                              {tag}
+                            </span>
+                          )
+                        )}
+                        {(!selectedConversation || (conversationTags[selectedConversation.id] ?? []).length === 0) && (
+                          <span className="text-xs text-slate-500">No tags yet.</span>
+                        )}
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <input
+                          value={tagDraft}
+                          onChange={(event) => setTagDraft(event.target.value)}
+                          className="flex-1 min-w-[160px] rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-xs text-slate-100"
+                          placeholder="Add a tag"
+                        />
+                        <button
+                          onClick={() => selectedConversation && addConversationTag(selectedConversation.id)}
+                          className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-200"
+                        >
+                          Add Tag
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-4 rounded-xl border border-slate-800/70 bg-slate-900/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Quick Replies</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {[
+                          "Thanks for reaching out! How can we help today?",
+                          "Could you share your email so we can follow up?",
+                          "Here are the next steps to get started.",
+                        ].map((template) => (
+                          <button
+                            key={template}
+                            onClick={() => setReplyDraft(template)}
+                            className="px-3 py-1.5 rounded-full border border-slate-700/80 bg-slate-950/70 text-xs text-slate-200"
+                          >
+                            {template.slice(0, 28)}...
+                          </button>
+                        ))}
+                      </div>
+                      <textarea
+                        value={replyDraft}
+                        onChange={(event) => setReplyDraft(event.target.value)}
+                        className="mt-3 w-full rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[90px]"
+                        placeholder="Draft a reply..."
+                      />
+                      <div className="mt-2 flex items-center gap-2">
+                        <button
+                          onClick={() => navigator.clipboard.writeText(replyDraft)}
+                          className="px-3 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-xs font-semibold text-emerald-200"
+                        >
+                          Copy Reply
+                        </button>
+                        <span className="text-xs text-slate-500">Paste into your chat tool to send.</span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -424,22 +741,76 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
         <div className="mt-8" id="leads">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Recent Leads</h3>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => exportLeadsCsv(filteredLeads)}
+                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-200"
+              >
+                Export CSV
+              </button>
+              <button
+                onClick={() => exportLeadsCsv(filteredLeads.filter((lead) => selectedLeadIds.includes(lead.id)))}
+                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-200 disabled:opacity-50"
+                disabled={selectedLeadIds.length === 0}
+              >
+                Export Selected
+              </button>
+              <button
+                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-500"
+                disabled
+              >
+                Bulk Assign
+              </button>
+              <button
+                className="px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/70 text-xs font-semibold text-slate-500"
+                disabled
+              >
+                Bulk Tag
+              </button>
+            </div>
+          </div>
+          <div className="mb-4 grid grid-cols-1 lg:grid-cols-3 gap-3">
+            {[
+              { label: "New", count: filteredLeads.filter((lead) => scoreLead(lead) < 50).length },
+              { label: "Contacted", count: filteredLeads.filter((lead) => scoreLead(lead) >= 50 && scoreLead(lead) < 75).length },
+              { label: "Qualified", count: filteredLeads.filter((lead) => scoreLead(lead) >= 75).length },
+            ].map((stage) => (
+              <div key={stage.label} className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{stage.label}</p>
+                <p className="mt-2 text-2xl font-semibold">{loading ? "..." : stage.count}</p>
+              </div>
+            ))}
           </div>
           <div className="flex flex-col gap-3">
             {loading && (
               <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">Loading leads...</div>
             )}
-            {!loading && leads.length === 0 && (
+            {!loading && filteredLeads.length === 0 && (
               <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">No leads yet.</div>
             )}
             {!loading &&
-              leads.map((lead) => (
+              filteredLeads.map((lead) => (
                 <div key={lead.id} className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">
                   <div className="flex items-center gap-3 text-sm text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={selectedLeadIds.includes(lead.id)}
+                      onChange={() => toggleLeadSelection(lead.id)}
+                      className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                    />
                     <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
                       {lead.platform}
                     </span>
+                    <span className="px-2 py-1 rounded-full bg-slate-800/80 text-slate-200 text-xs font-semibold">
+                      Score: {scoreLead(lead)}
+                    </span>
                     <span>{new Date(lead.created_at).toLocaleString()}</span>
+                  </div>
+                  <div className="mt-2 h-1.5 rounded-full bg-slate-800">
+                    <div
+                      className="h-1.5 rounded-full bg-emerald-500/70"
+                      style={{ width: `${scoreLead(lead)}%` }}
+                    />
                   </div>
                   <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2 text-sm">
                     <span>Name: {lead.name ?? "-"}</span>

@@ -1,12 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AdminDashboard from "../../components/AdminDashboard";
 
 type AdminSection = "dashboard" | "conversations" | "leads" | "channels" | "settings" | "email";
 
 export default function AdminPage() {
   const [activeSection, setActiveSection] = useState<AdminSection>("dashboard");
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if (!event.altKey) return;
+      switch (event.key) {
+        case "1":
+          setActiveSection("dashboard");
+          break;
+        case "2":
+          setActiveSection("conversations");
+          break;
+        case "3":
+          setActiveSection("leads");
+          break;
+        case "4":
+          setActiveSection("channels");
+          break;
+        case "5":
+          setActiveSection("settings");
+          break;
+        case "6":
+          setActiveSection("email");
+          break;
+        default:
+          break;
+      }
+    };
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, []);
 
   return (
     <section className="w-full grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-0 h-[calc(100vh-120px)]">
@@ -64,7 +94,15 @@ export default function AdminPage() {
         </nav>
       </aside>
       <div className="w-full px-6 py-6 overflow-y-auto">
-        <AdminDashboard activeSection={activeSection} />
+        <div className="mb-4 flex flex-col lg:flex-row lg:items-center justify-between gap-2">
+          <div className="text-sm text-slate-400">
+            Admin / <span className="text-slate-200 capitalize">{activeSection}</span>
+          </div>
+          <div className="text-xs text-slate-500">
+            Shortcuts: Alt+1..6 to switch sections
+          </div>
+        </div>
+        <AdminDashboard activeSection={activeSection} onQuickAction={setActiveSection} />
       </div>
     </section>
   );
