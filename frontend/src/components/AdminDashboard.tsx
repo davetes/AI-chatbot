@@ -210,20 +210,22 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
   );
 
   return (
-    <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
-      <div className="flex items-center justify-between gap-4 mb-4">
+    <div className="w-full rounded-3xl border border-slate-800/80 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.65)]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
         <div>
-          <p className="uppercase text-xs tracking-[0.12em] text-slate-400 mb-1">Overview</p>
-          <h2 className="text-2xl font-semibold">Admin Dashboard</h2>
-          <p className="text-slate-400">Monitor conversations, leads, and channel performance.</p>
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200">
+            Admin Console
+          </div>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight">Dashboard</h2>
+          <p className="text-slate-400">Monitor conversations, leads, and channel performance in real time.</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button
-            className="px-4 py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-100 font-semibold disabled:opacity-50"
+            className="px-4 py-2 rounded-xl border border-slate-700/80 bg-slate-900/80 text-slate-100 font-semibold hover:border-slate-500 hover:text-white transition disabled:opacity-50"
             disabled={loading}
             onClick={load}
           >
-            Refresh
+            {loading ? "Refreshing…" : "Refresh"}
           </button>
         </div>
       </div>
@@ -231,41 +233,39 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
       {activeSection === "dashboard" && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-              <h3 className="text-sm text-slate-400">Total Messages</h3>
-              <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.total_messages ?? "0"}</p>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-              <h3 className="text-sm text-slate-400">Total Conversations</h3>
-              <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.total_conversations ?? "0"}</p>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-              <h3 className="text-sm text-slate-400">Total Leads</h3>
-              <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.total_leads ?? "0"}</p>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-              <h3 className="text-sm text-slate-400">Last 24h</h3>
-              <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.last_24h ?? "0"}</p>
-            </div>
+            {[
+              { label: "Total Messages", value: analytics?.total_messages ?? "0", accent: "from-emerald-500/15" },
+              { label: "Total Conversations", value: analytics?.total_conversations ?? "0", accent: "from-sky-500/15" },
+              { label: "Total Leads", value: analytics?.total_leads ?? "0", accent: "from-violet-500/15" },
+              { label: "Last 24h", value: analytics?.last_24h ?? "0", accent: "from-amber-500/15" },
+            ].map((card) => (
+              <div
+                key={card.label}
+                className={`rounded-2xl border border-slate-800/80 bg-gradient-to-br ${card.accent} to-transparent p-4 shadow-lg`}
+              >
+                <p className="text-sm text-slate-400">{card.label}</p>
+                <p className="text-3xl font-semibold mt-2">{loading ? "..." : card.value}</p>
+              </div>
+            ))}
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-              <h3 className="text-sm text-slate-400 mb-3">Users by Platform</h3>
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
+              <h3 className="text-sm text-slate-300 mb-3">Users by Platform</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {loading && <div className="text-sm text-slate-400">Loading…</div>}
                 {!loading && userEntries.length === 0 && <div className="text-sm text-slate-400">No data</div>}
                 {!loading &&
                   userEntries.map(([name, count]) => (
-                    <div key={name} className="p-3 rounded-lg border border-slate-800 bg-slate-900">
-                      <p className="text-xs text-slate-400">{name}</p>
-                      <p className="text-xl font-semibold">{count}</p>
+                    <div key={name} className="p-3 rounded-xl border border-slate-800/80 bg-slate-900/70">
+                      <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{name}</p>
+                      <p className="text-2xl font-semibold">{count}</p>
                     </div>
                   ))}
               </div>
             </div>
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-              <h3 className="text-sm text-slate-400 mb-3">Conversations by Platform</h3>
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 shadow-lg">
+              <h3 className="text-sm text-slate-300 mb-3">Conversations by Platform</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {loading && <div className="text-sm text-slate-400">Loading…</div>}
                 {!loading && conversationEntries.length === 0 && (
@@ -273,9 +273,9 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                 )}
                 {!loading &&
                   conversationEntries.map(([name, count]) => (
-                    <div key={name} className="p-3 rounded-lg border border-slate-800 bg-slate-900">
-                      <p className="text-xs text-slate-400">{name}</p>
-                      <p className="text-xl font-semibold">{count}</p>
+                    <div key={name} className="p-3 rounded-xl border border-slate-800/80 bg-slate-900/70">
+                      <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{name}</p>
+                      <p className="text-2xl font-semibold">{count}</p>
                     </div>
                   ))}
               </div>
@@ -290,11 +290,18 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
             <h3 className="text-lg font-semibold">Channels</h3>
           </div>
           <div className="flex flex-wrap gap-2">
-            {loading && <span className="px-3 py-1 rounded-full bg-slate-800 text-xs">Loading…</span>}
-            {!loading && channelEntries.length === 0 && <span className="px-3 py-1 rounded-full bg-slate-800 text-xs">No data</span>}
+            {loading && (
+              <span className="px-3 py-1 rounded-full bg-slate-800/80 text-xs">Loading…</span>
+            )}
+            {!loading && channelEntries.length === 0 && (
+              <span className="px-3 py-1 rounded-full bg-slate-800/80 text-xs">No data</span>
+            )}
             {!loading &&
               channelEntries.map(([name, count]) => (
-                <span key={name} className="px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs">
+                <span
+                  key={name}
+                  className="px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700/80 text-xs text-slate-200"
+                >
                   {name} · {count}
                 </span>
               ))}
@@ -302,7 +309,11 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
         </div>
       )}
 
-      {error && <p className="mt-4 text-rose-300 font-semibold">{error}</p>}
+      {error && (
+        <div className="mt-4 rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-rose-200">
+          {error}
+        </div>
+      )}
 
       {activeSection === "conversations" && (
         <div className="mt-8" id="conversations">
@@ -316,7 +327,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search by user ID..."
-                  className="px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                  className="px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                 />
                 <select
                   value={platformFilter}
@@ -324,7 +335,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     setPage(1);
                     setPlatformFilter(event.target.value);
                   }}
-                  className="px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                  className="px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                 >
                   <option value="all">All Platforms</option>
                   <option value="whatsapp">WhatsApp</option>
@@ -335,19 +346,21 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                 </select>
               </div>
 
-              {loading && <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">Loading conversations...</div>}
+              {loading && (
+                <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">Loading conversations...</div>
+              )}
               {!loading && filteredConversations.length === 0 && (
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">No conversations yet.</div>
+                <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">No conversations yet.</div>
               )}
               {!loading &&
                 filteredConversations.map((conv) => (
                   <button
                     key={conv.id}
                     onClick={() => setSelectedConversation(conv)}
-                    className={`text-left p-4 rounded-xl border transition ${
+                    className={`text-left p-4 rounded-2xl border transition shadow-sm hover:shadow-lg ${
                       selectedConversation?.id === conv.id
-                        ? "border-emerald-500 bg-emerald-500/10"
-                        : "border-slate-800 bg-slate-950 hover:border-slate-700"
+                        ? "border-emerald-500/80 bg-emerald-500/10"
+                        : "border-slate-800/80 bg-slate-950/70 hover:border-slate-700"
                     }`}
                   >
                     <div className="flex items-center gap-3 text-sm text-slate-300">
@@ -383,7 +396,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
             </div>
 
             <div className="lg:w-3/5">
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 min-h-[220px]">
+              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 min-h-[220px]">
                 <h4 className="text-sm font-semibold mb-3">Conversation Detail</h4>
                 {!selectedConversation && <p className="text-sm text-slate-400">Select a conversation to view messages.</p>}
                 {selectedConversation && (
@@ -392,7 +405,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                       <p className="text-sm text-slate-400">No messages yet.</p>
                     )}
                     {conversationMessages.map((msg) => (
-                      <div key={msg.id} className="flex flex-col gap-1 text-sm">
+                      <div key={msg.id} className="flex flex-col gap-1 text-sm rounded-xl border border-slate-800/70 bg-slate-900/60 p-3">
                         <span className="text-slate-400">
                           {msg.sender} · {new Date(msg.created_at).toLocaleString()}
                         </span>
@@ -413,11 +426,15 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
             <h3 className="text-lg font-semibold">Recent Leads</h3>
           </div>
           <div className="flex flex-col gap-3">
-            {loading && <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">Loading leads...</div>}
-            {!loading && leads.length === 0 && <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">No leads yet.</div>}
+            {loading && (
+              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">Loading leads...</div>
+            )}
+            {!loading && leads.length === 0 && (
+              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">No leads yet.</div>
+            )}
             {!loading &&
               leads.map((lead) => (
-                <div key={lead.id} className="p-4 rounded-xl bg-slate-950 border border-slate-800">
+                <div key={lead.id} className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">
                   <div className="flex items-center gap-3 text-sm text-slate-300">
                     <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
                       {lead.platform}
@@ -442,13 +459,13 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
             <h3 className="text-lg font-semibold">Settings</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-6">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-6">
               <div className="flex flex-wrap gap-2">
                 <button
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
                     settingsSection === "ai"
                       ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700 text-slate-200 bg-slate-900"
+                      : "border-slate-700/80 text-slate-200 bg-slate-900/70"
                   }`}
                   onClick={() => setSettingsSection((prev) => (prev === "ai" ? null : "ai"))}
                 >
@@ -458,7 +475,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
                     settingsSection === "messaging"
                       ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700 text-slate-200 bg-slate-900"
+                      : "border-slate-700/80 text-slate-200 bg-slate-900/70"
                   }`}
                   onClick={() => setSettingsSection((prev) => (prev === "messaging" ? null : "messaging"))}
                 >
@@ -468,7 +485,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
                     settingsSection === "crm"
                       ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700 text-slate-200 bg-slate-900"
+                      : "border-slate-700/80 text-slate-200 bg-slate-900/70"
                   }`}
                   onClick={() => setSettingsSection((prev) => (prev === "crm" ? null : "crm"))}
                 >
@@ -478,7 +495,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
                     settingsSection === "database"
                       ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700 text-slate-200 bg-slate-900"
+                      : "border-slate-700/80 text-slate-200 bg-slate-900/70"
                   }`}
                   onClick={() => setSettingsSection((prev) => (prev === "database" ? null : "database"))}
                 >
@@ -488,7 +505,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
                     settingsSection === "smtp"
                       ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700 text-slate-200 bg-slate-900"
+                      : "border-slate-700/80 text-slate-200 bg-slate-900/70"
                   }`}
                   onClick={() => setSettingsSection((prev) => (prev === "smtp" ? null : "smtp"))}
                 >
@@ -497,14 +514,14 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
               </div>
 
               {settingsSection === "ai" && (
-                <div className="border border-slate-800 rounded-xl p-4 space-y-4">
+                <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
                   <h4 className="text-sm font-semibold text-slate-300">AI Provider</h4>
                   <div>
                     <label className="text-sm text-slate-400">AI Provider</label>
                     <input
                       value={settingsForm.ai_provider}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_provider: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="openai | groq"
                     />
                   </div>
@@ -513,7 +530,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.ai_model}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_model: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="gpt-4o-mini | llama3-8b-8192"
                     />
                   </div>
@@ -522,7 +539,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.ai_base_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_base_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="https://api.groq.com/openai/v1"
                     />
                   </div>
@@ -531,7 +548,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.ai_api_key}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_api_key: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder={settingsData?.has_ai_api_key ? "Configured" : "Enter API key"}
                     />
                   </div>
@@ -539,14 +556,14 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
               )}
 
               {settingsSection === "messaging" && (
-                <div className="border border-slate-800 rounded-xl p-4 space-y-4">
+                <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
                   <h4 className="text-sm font-semibold text-slate-300">Messaging Platforms</h4>
                   <div>
                     <label className="text-sm text-slate-400">Verify Token</label>
                     <input
                       value={settingsForm.verify_token}
                       onChange={(event) => setSettingsForm({ ...settingsForm, verify_token: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder={settingsData?.verify_token_set ? "Configured" : "Enter verify token"}
                     />
                   </div>
@@ -555,7 +572,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.meta_api_version}
                       onChange={(event) => setSettingsForm({ ...settingsForm, meta_api_version: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="v19.0"
                     />
                   </div>
@@ -564,7 +581,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.meta_access_token}
                       onChange={(event) => setSettingsForm({ ...settingsForm, meta_access_token: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder={settingsData?.meta_access_token_set ? "Configured" : "Enter Meta access token"}
                     />
                   </div>
@@ -575,7 +592,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                       onChange={(event) =>
                         setSettingsForm({ ...settingsForm, meta_page_access_token: event.target.value })
                       }
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder={settingsData?.meta_page_access_token_set ? "Configured" : "Enter page access token"}
                     />
                   </div>
@@ -584,7 +601,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.meta_phone_number_id}
                       onChange={(event) => setSettingsForm({ ...settingsForm, meta_phone_number_id: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="Enter phone number ID"
                     />
                   </div>
@@ -593,7 +610,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.telegram_bot_token}
                       onChange={(event) => setSettingsForm({ ...settingsForm, telegram_bot_token: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder={settingsData?.telegram_bot_token_set ? "Configured" : "Enter Telegram bot token"}
                     />
                   </div>
@@ -601,14 +618,14 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
               )}
 
               {settingsSection === "crm" && (
-                <div className="border border-slate-800 rounded-xl p-4 space-y-4">
+                <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
                   <h4 className="text-sm font-semibold text-slate-300">CRM & Sheets</h4>
                   <div>
                     <label className="text-sm text-slate-400">CRM Webhook URL</label>
                     <input
                       value={settingsForm.crm_webhook_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, crm_webhook_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="https://your-crm-webhook"
                     />
                   </div>
@@ -617,7 +634,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.sheets_webhook_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, sheets_webhook_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="https://your-sheets-webhook"
                     />
                   </div>
@@ -625,14 +642,14 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
               )}
 
               {settingsSection === "database" && (
-                <div className="border border-slate-800 rounded-xl p-4 space-y-4">
+                <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
                   <h4 className="text-sm font-semibold text-slate-300">Database</h4>
                   <div>
                     <label className="text-sm text-slate-400">Database URL</label>
                     <input
                       value={settingsForm.database_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, database_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="postgresql+asyncpg://user:pass@host:5432/db"
                     />
                   </div>
@@ -640,14 +657,14 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
               )}
 
               {settingsSection === "smtp" && (
-                <div className="border border-slate-800 rounded-xl p-4 space-y-4">
+                <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
                   <h4 className="text-sm font-semibold text-slate-300">SMTP Email</h4>
                   <div>
                     <label className="text-sm text-slate-400">SMTP Host</label>
                     <input
                       value={settingsForm.smtp_host}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_host: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="smtp.gmail.com"
                     />
                   </div>
@@ -656,7 +673,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.smtp_port}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_port: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="587"
                     />
                   </div>
@@ -665,7 +682,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.smtp_user}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_user: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="you@example.com"
                     />
                   </div>
@@ -674,7 +691,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.smtp_pass}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_pass: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="App password"
                     />
                   </div>
@@ -683,7 +700,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <input
                       value={settingsForm.smtp_from}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_from: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                       placeholder="Support <support@example.com>"
                     />
                   </div>
@@ -692,7 +709,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                     <select
                       value={settingsForm.smtp_tls}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_tls: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                     >
                       <option value="true">true</option>
                       <option value="false">false</option>
@@ -705,7 +722,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleSettingsSave}
-                    className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold"
+                    className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold hover:bg-emerald-500/20 transition"
                   >
                     Save Settings
                   </button>
@@ -714,7 +731,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
               )}
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3 text-sm">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3 text-sm">
               <p className="text-slate-300 font-semibold">Current Status</p>
               <p>AI Key: {settingsData?.has_ai_api_key ? "Configured" : "Missing"}</p>
               <p>Verify Token: {settingsData?.verify_token_set ? "Configured" : "Missing"}</p>
@@ -735,13 +752,13 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
             <h3 className="text-lg font-semibold">Email Reply</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-4">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4">
               <div>
                 <label className="text-sm text-slate-400">To</label>
                 <input
                   value={emailForm.to}
                   onChange={(event) => setEmailForm({ ...emailForm, to: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                   placeholder="user@example.com"
                 />
               </div>
@@ -750,7 +767,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                 <input
                   value={emailForm.subject}
                   onChange={(event) => setEmailForm({ ...emailForm, subject: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
                   placeholder="Re: Your request"
                 />
               </div>
@@ -759,18 +776,18 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
                 <textarea
                   value={emailForm.message}
                   onChange={(event) => setEmailForm({ ...emailForm, message: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 min-h-[140px]"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100 min-h-[140px]"
                   placeholder="Paste the customer email here..."
                 />
               </div>
               <button
                 onClick={handleEmailReply}
-                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold"
+                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold hover:bg-emerald-500/20 transition"
               >
                 Generate & Send Reply
               </button>
             </div>
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3 text-sm">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3 text-sm">
               <p className="text-slate-300 font-semibold">AI Reply Preview</p>
               <p className="text-slate-100 whitespace-pre-wrap">{emailReply || "No reply generated yet."}</p>
             </div>
