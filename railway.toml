@@ -1,0 +1,32 @@
+[[services]]
+name = "backend"
+rootDir = "backend"
+
+[services.build]
+builder = "NIXPACKS"
+
+[services.deploy]
+startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[services.variables]
+PORT = "8000"
+HOST = "0.0.0.0"
+
+[[services]]
+name = "frontend"
+rootDir = "frontend"
+
+[services.build]
+builder = "NIXPACKS"
+
+[services.deploy]
+startCommand = "npm run start -- -p $PORT"
+
+[services.variables]
+PORT = "3000"
+HOST = "0.0.0.0"
+NEXT_PUBLIC_API_BASE = "https://YOUR_BACKEND_DOMAIN"
