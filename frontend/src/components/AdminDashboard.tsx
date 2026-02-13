@@ -2,25 +2,31 @@
 
 import { useEffect, useState } from "react";
 import {
+  analyzeIntelligence,
+  broadcastCampaign,
+  createFlow,
   deleteKnowledgeBase,
+  deleteFlow,
   exportReport,
   getAdvancedAnalytics,
   getAnalytics,
   getBotConfig,
   getConversationMessages,
   getConversations,
+  getFlows,
   getKnowledgeBase,
   getLeads,
   getSettings,
   getWorkflows,
+  recoveryCampaign,
   runABTest,
   searchKnowledgeBase,
   sendAgentReply,
-  updateSettings,
   sendEmailReply,
   setConversationHandoff,
   simulateConversation,
   updateBotConfig,
+  updateSettings,
   updateWorkflows,
   uploadKnowledgeBase,
 } from "../services/api";
@@ -39,6 +45,7 @@ type Conversation = {
   id: number;
   platform: string;
   status: string;
+  handoff_enabled: boolean;
   user_external_id: string;
   created_at: string;
 };
@@ -70,6 +77,8 @@ type AdminSection =
   | "knowledge"
   | "bot"
   | "workflows"
+  | "intelligence"
+  | "campaigns"
   | "reports"
   | "testing";
 
@@ -113,7 +122,6 @@ export default function AdminDashboard({
   >(null);
   const [timeRange, setTimeRange] = useState<"today" | "7d" | "30d" | "custom">("7d");
   const [globalSearch, setGlobalSearch] = useState("");
-  const [takeoverEnabled, setTakeoverEnabled] = useState(false);
   const [replyDraft, setReplyDraft] = useState("");
   const [selectedLeadIds, setSelectedLeadIds] = useState<number[]>([]);
   const [conversationTags, setConversationTags] = useState<Record<number, string[]>>({});
@@ -134,6 +142,27 @@ export default function AdminDashboard({
     Array<{ id: string; name: string; keywords: string[]; action: string }>
   >([]);
   const [workflowDraft, setWorkflowDraft] = useState({ name: "", keywords: "", action: "auto_reply:" });
+  const [campaignForm, setCampaignForm] = useState({ platform: "telegram", message: "" });
+  const [recoveryForm, setRecoveryForm] = useState({
+    platform: "",
+    hours_inactive: 24,
+    message: "We noticed you stopped chatting. Can we help?",
+  });
+  const [intelligenceInput, setIntelligenceInput] = useState("");
+  const [intelligenceResult, setIntelligenceResult] = useState<
+    | {
+        intent: string;
+        confidence: number;
+        entities: Record<string, string[]>;
+        summary: string;
+        suggested_responses: string[];
+      }
+    | null
+  >(null);
+  const [flows, setFlows] = useState<
+    Array<{ id: string; name: string; nodes: Array<{ id: string; type: string; label: string; next?: string }> }>
+  >([]);
+  const [flowDraft, setFlowDraft] = useState({ name: "", nodesJson: "[]" });
   const [simulatorPrompt, setSimulatorPrompt] = useState("");
   const [simulatorTurns, setSimulatorTurns] = useState(3);
   const [simulatorTranscript, setSimulatorTranscript] = useState<Array<{ role: string; content: string }>>([]);
@@ -153,7 +182,7 @@ export default function AdminDashboard({
       setLoading(true);
       const offset = (page - 1) * limit;
       const platform = platformFilter === "all" ? undefined : platformFilter;
-      const [a, c, l, s, adv, kb, bot, workflows] = await Promise.all([
+      const [a, c, l, s, adv, kb, bot, workflows, flowsData] = await Promise.all([
         getAnalytics(),
         getConversations(limit, offset, platform),
         getLeads(),
@@ -162,6 +191,7 @@ export default function AdminDashboard({
         getKnowledgeBase(),
         getBotConfig(),
         getWorkflows(),
+        getFlows(),
       ]);
       setAnalytics(a);
       setConversations(c);
@@ -172,6 +202,7 @@ export default function AdminDashboard({
       setBotConfig(bot);
       setBotForm({ persona: bot.persona, tone: bot.tone, system_prompt: bot.system_prompt ?? "" });
       setWorkflowRules(workflows);
+      setFlows(flowsData);
       setSettingsForm({
         ai_provider: s.ai_provider,
         ai_model: s.ai_model,
@@ -386,6 +417,56 @@ export default function AdminDashboard({
   const handleAbTest = async () => {
     const result = await runABTest(abPromptA, abPromptB, abMessage);
     setAbResult(result);
+  };
+
+  const handleAnalyzeIntelligence = async () => {
+    if (!intelligenceInput.trim()) return;
+    const result = await analyzeIntelligence(intelligenceInput.trim());
+    setIntelligenceResult(result);
+  };
+
+  const handleBroadcast = async () => {
+    if (!campaignForm.message.trim()) return;
+    await broadcastCampaign(campaignForm.platform, campaignForm.message.trim());
+    setCampaignForm((prev) => ({ ...prev, message: "" }));
+  };
+
+  const handleRecovery = async () => {
+    if (!recoveryForm.message.trim()) return;
+    await recoveryCampaign({
+      platform: recoveryForm.platform || undefined,
+      hours_inactive: recoveryForm.hours_inactive,
+      message: recoveryForm.message.trim(),
+    });
+  };
+
+  const handleCreateFlow = async () => {
+    try {
+      const nodes = JSON.parse(flowDraft.nodesJson) as Array<{ id: string; type: string; label: string; next?: string }>;
+      const flow = await createFlow({ name: flowDraft.name || "Untitled flow", nodes });
+      setFlows((prev) => [...prev, flow]);
+      setFlowDraft({ name: "", nodesJson: "[]" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid flow JSON");
+    }
+  };
+
+  const handleDeleteFlow = async (flowId: string) => {
+    await deleteFlow(flowId);
+    setFlows((prev) => prev.filter((flow) => flow.id !== flowId));
+  };
+
+  const handleToggleHandoff = async (conversation: Conversation) => {
+    const updated = await setConversationHandoff(conversation.id, !conversation.handoff_enabled);
+    setConversations((prev) =>
+      prev.map((item) => (item.id === conversation.id ? { ...item, handoff_enabled: updated.handoff_enabled } : item))
+    );
+  };
+
+  const handleAgentReply = async () => {
+    if (!selectedConversation || !replyDraft.trim()) return;
+    await sendAgentReply(selectedConversation.id, replyDraft.trim());
+    setReplyDraft("");
   };
 
   const channelEntries = analytics ? Object.entries(analytics.channels) : [];
@@ -792,19 +873,14 @@ export default function AdminDashboard({
                 <h4 className="text-sm font-semibold mb-3">Conversation Detail</h4>
                 <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-slate-300">
                   <button
-                    onClick={async () => {
-                      if (!selectedConversation) return;
-                      const enabled = !takeoverEnabled;
-                      await setConversationHandoff(selectedConversation.id, enabled);
-                      setTakeoverEnabled(enabled);
-                    }}
+                    onClick={() => selectedConversation && handleToggleHandoff(selectedConversation)}
                     className={`px-3 py-1.5 rounded-full border font-semibold transition ${
-                      takeoverEnabled
+                      selectedConversation?.handoff_enabled
                         ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
                         : "border-slate-700/80 text-slate-300 bg-slate-900/70"
                     }`}
                   >
-                    {takeoverEnabled ? "Agent takeover: ON" : "Agent takeover: OFF"}
+                    {selectedConversation?.handoff_enabled ? "Agent takeover: ON" : "Agent takeover: OFF"}
                   </button>
                   <span className="text-slate-500">Live preview enabled</span>
                 </div>
@@ -1396,6 +1472,145 @@ export default function AdminDashboard({
         </div>
       )}
 
+      {activeSection === "intelligence" && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Conversation Intelligence</h3>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
+              <p className="text-sm text-slate-300 font-semibold">Analyze Message</p>
+              <textarea
+                value={intelligenceInput}
+                onChange={(event) => setIntelligenceInput(event.target.value)}
+                className="w-full min-h-[140px] rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                placeholder="Paste a customer message to classify intent and entities..."
+              />
+              <button
+                onClick={handleAnalyzeIntelligence}
+                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 text-sm font-semibold"
+              >
+                Analyze
+              </button>
+              {intelligenceResult && (
+                <div className="space-y-2 text-sm">
+                  <p>
+                    Intent: <span className="text-emerald-200">{intelligenceResult.intent}</span> · Confidence: {intelligenceResult.confidence}
+                  </p>
+                  <p className="text-slate-400">Summary: {intelligenceResult.summary}</p>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Entities</p>
+                    <pre className="mt-2 text-xs text-slate-200 whitespace-pre-wrap">
+                      {JSON.stringify(intelligenceResult.entities, null, 2)}
+                    </pre>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Suggested Responses</p>
+                    <ul className="mt-2 space-y-1 text-xs text-slate-200">
+                      {intelligenceResult.suggested_responses.map((resp) => (
+                        <li key={resp}>• {resp}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
+              <p className="text-sm text-slate-300 font-semibold">Advanced Analytics</p>
+              <p className="text-sm text-slate-400">
+                Avg response time: {advancedAnalytics?.avg_response_time_seconds ?? "-"}s · Samples: {advancedAnalytics?.response_samples ?? 0}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {Object.entries(advancedAnalytics?.sentiment_breakdown ?? {}).map(([key, value]) => (
+                  <div key={key} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                    <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{key}</p>
+                    <p className="mt-1 text-lg font-semibold text-slate-100">{value}</p>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Top Topics</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(advancedAnalytics?.top_topics ?? []).map((topic) => (
+                    <span key={topic.topic} className="px-2 py-1 rounded-full bg-slate-800/80 text-xs text-slate-200">
+                      {topic.topic} · {topic.count}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeSection === "campaigns" && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Proactive Campaigns</h3>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
+              <p className="text-sm text-slate-300 font-semibold">Broadcast Message</p>
+              <select
+                value={campaignForm.platform}
+                onChange={(event) => setCampaignForm({ ...campaignForm, platform: event.target.value })}
+                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+              >
+                <option value="telegram">Telegram</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="messenger">Messenger</option>
+                <option value="instagram">Instagram</option>
+                <option value="sms">SMS</option>
+              </select>
+              <textarea
+                value={campaignForm.message}
+                onChange={(event) => setCampaignForm({ ...campaignForm, message: event.target.value })}
+                className="w-full min-h-[120px] rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                placeholder="Write a campaign message..."
+              />
+              <button
+                onClick={handleBroadcast}
+                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 text-sm font-semibold"
+              >
+                Send Broadcast
+              </button>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
+              <p className="text-sm text-slate-300 font-semibold">Abandoned Recovery</p>
+              <select
+                value={recoveryForm.platform}
+                onChange={(event) => setRecoveryForm({ ...recoveryForm, platform: event.target.value })}
+                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+              >
+                <option value="">All Platforms</option>
+                <option value="telegram">Telegram</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="messenger">Messenger</option>
+                <option value="instagram">Instagram</option>
+              </select>
+              <input
+                type="number"
+                value={recoveryForm.hours_inactive}
+                onChange={(event) => setRecoveryForm({ ...recoveryForm, hours_inactive: Number(event.target.value) })}
+                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                placeholder="Hours inactive"
+              />
+              <textarea
+                value={recoveryForm.message}
+                onChange={(event) => setRecoveryForm({ ...recoveryForm, message: event.target.value })}
+                className="w-full min-h-[120px] rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+              />
+              <button
+                onClick={handleRecovery}
+                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 text-sm font-semibold"
+              >
+                Start Recovery
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeSection === "bot" && (
         <div className="mt-8">
           <div className="flex items-center justify-between mb-3">
@@ -1441,6 +1656,47 @@ export default function AdminDashboard({
               <p>Persona: {botConfig?.persona ?? "-"}</p>
               <p>Tone: {botConfig?.tone ?? "-"}</p>
               <p className="text-slate-400">Prompt: {botConfig?.system_prompt || "Default"}</p>
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
+              <p className="text-sm text-slate-300 font-semibold">Flow Builder (JSON)</p>
+              <input
+                value={flowDraft.name}
+                onChange={(event) => setFlowDraft({ ...flowDraft, name: event.target.value })}
+                className="w-full px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+                placeholder="Flow name"
+              />
+              <textarea
+                value={flowDraft.nodesJson}
+                onChange={(event) => setFlowDraft({ ...flowDraft, nodesJson: event.target.value })}
+                className="w-full min-h-[140px] rounded-xl border border-slate-700/80 bg-slate-950/70 px-3 py-2 text-xs text-slate-100"
+                placeholder='[{"id":"start","type":"message","label":"Welcome"}]'
+              />
+              <button
+                onClick={handleCreateFlow}
+                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 text-sm font-semibold"
+              >
+                Save Flow
+              </button>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+              <p className="text-sm font-semibold text-slate-300">Saved Flows</p>
+              {flows.length === 0 && <p className="text-xs text-slate-500">No flows created.</p>}
+              {flows.map((flow) => (
+                <div key={flow.id} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <p className="text-slate-200 font-semibold">{flow.name}</p>
+                    <button
+                      onClick={() => handleDeleteFlow(flow.id)}
+                      className="px-2 py-1 rounded-lg border border-rose-500/40 text-rose-200 text-xs"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-500">Nodes: {flow.nodes.length}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -13,6 +13,8 @@ type AdminSection =
   | "knowledge"
   | "bot"
   | "workflows"
+  | "intelligence"
+  | "campaigns"
   | "reports"
   | "testing";
 
@@ -45,10 +47,10 @@ export default function AdminPage() {
           setActiveSection("knowledge");
           break;
         case "8":
-          setActiveSection("bot");
+          setActiveSection("intelligence");
           break;
         case "9":
-          setActiveSection("workflows");
+          setActiveSection("campaigns");
           break;
         case "0":
           setActiveSection("reports");
@@ -125,11 +127,51 @@ export default function AdminPage() {
           </button>
           <button
             className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
-              activeSection === "bot" ? "bg-slate-900/80" : ""
+              activeSection === "email" ? "bg-slate-900/80" : ""
             }`}
             onClick={() => setActiveSection("bot")}
           >
             Bot Personality
+          </button>
+          <button
+            className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
+              activeSection === "knowledge" ? "bg-slate-900/80" : ""
+            }`}
+            onClick={() => setActiveSection("knowledge")}
+          >
+            Knowledge Base
+          </button>
+          <button
+            className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
+              activeSection === "bot" ? "bg-slate-900/80" : ""
+            }`}
+            onClick={() => setActiveSection("bot")}
+          >
+            Bot Builder
+          </button>
+          <button
+            className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
+              activeSection === "workflows" ? "bg-slate-900/80" : ""
+            }`}
+            onClick={() => setActiveSection("workflows")}
+          >
+            Workflows
+          </button>
+          <button
+            className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
+              activeSection === "intelligence" ? "bg-slate-900/80" : ""
+            }`}
+            onClick={() => setActiveSection("intelligence")}
+          >
+            Intelligence
+          </button>
+          <button
+            className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
+              activeSection === "campaigns" ? "bg-slate-900/80" : ""
+            }`}
+            onClick={() => setActiveSection("campaigns")}
+          >
+            Campaigns
           </button>
           <button
             className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${

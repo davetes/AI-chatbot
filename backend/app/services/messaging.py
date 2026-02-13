@@ -49,3 +49,12 @@ async def send_telegram_message(chat_id: str, text: str) -> None:
     payload = {"chat_id": chat_id, "text": text}
     async with httpx.AsyncClient() as client:
         await client.post(url, json=payload, timeout=20)
+
+
+async def send_sms_message(to: str, text: str) -> None:
+    if not (settings.twilio_account_sid and settings.twilio_auth_token and settings.twilio_from_number):
+        raise RuntimeError("Twilio SMS is not configured")
+    url = f"https://api.twilio.com/2010-04-01/Accounts/{settings.twilio_account_sid}/Messages.json"
+    payload = {"From": settings.twilio_from_number, "To": to, "Body": text}
+    async with httpx.AsyncClient() as client:
+        await client.post(url, data=payload, auth=(settings.twilio_account_sid, settings.twilio_auth_token), timeout=20)

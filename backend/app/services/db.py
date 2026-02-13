@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import joinedload
 
 from app.config import settings
-from app.models.db import Base, Conversation, Lead, Message, User
+from app.models.db import AuditLog, Base, Conversation, Lead, Message, User
 
 _engine: Optional[AsyncEngine] = None
 _sessionmaker: Optional[async_sessionmaker[AsyncSession]] = None
@@ -30,42 +30,49 @@ async def init_db() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-async def get_or_create_user(platform: str, external_id: str) -> User:
+async def get_or_create_user(platform: str, external_id: str, tenant_id: str = "default") -> User:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
-        stmt = select(User).where(User.platform == platform, User.external_id == external_id)
+        stmt = select(User).where(
+            User.platform == platform, User.external_id == external_id, User.tenant_id == tenant_id
+        )
         result = await session.execute(stmt)
         user = result.scalar_one_or_none()
         if user:
             return user
-        user = User(platform=platform, external_id=external_id)
+        user = User(platform=platform, external_id=external_id, tenant_id=tenant_id)
         session.add(user)
         await session.commit()
         await session.refresh(user)
         return user
 
-async def get_or_create_conversation(platform: str, user_id: int) -> Conversation:
+async def get_or_create_conversation(platform: str, user_id: int, tenant_id: str = "default") -> Conversation:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
         stmt = (
             select(Conversation)
-            .where(Conversation.user_id == user_id, Conversation.platform == platform, Conversation.status == "open")
+            .where(
+                Conversation.user_id == user_id,
+                Conversation.platform == platform,
+                Conversation.status == "open",
+                Conversation.tenant_id == tenant_id,
+            )
             .order_by(Conversation.created_at.desc())
         )
         result = await session.execute(stmt)
         conversation = result.scalars().first()
         if conversation:
             return conversation
-        conversation = Conversation(user_id=user_id, platform=platform, status="open")
+        conversation = Conversation(user_id=user_id, platform=platform, status="open", tenant_id=tenant_id)
         session.add(conversation)
         await session.commit()
         await session.refresh(conversation)
         return conversation
 
-async def add_message(conversation_id: int, sender: str, content: str) -> Message:
+async def add_message(conversation_id: int, sender: str, content: str, tenant_id: str = "default") -> Message:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
-        message = Message(conversation_id=conversation_id, sender=sender, content=content)
+        message = Message(conversation_id=conversation_id, sender=sender, content=content, tenant_id=tenant_id)
         session.add(message)
         await session.commit()
         await session.refresh(message)
@@ -75,6 +82,7 @@ async def list_messages(
     limit: int = 50,
     offset: int = 0,
     platform: Optional[str] = None,
+    tenant_id: str = "default",
 ) -> List[Dict[str, object]]:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
@@ -93,7 +101,7 @@ async def list_messages(
             .order_by(Message.created_at.desc())
             .limit(limit)
             .offset(offset)
-        )
+        ).where(Conversation.tenant_id == tenant_id)
         if platform:
             stmt = stmt.where(Conversation.platform == platform)
         result = await session.execute(stmt)
@@ -114,6 +122,7 @@ async def list_conversations(
     limit: int = 50,
     offset: int = 0,
     platform: Optional[str] = None,
+    tenant_id: str = "default",
 ) -> List[Dict[str, object]]:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
@@ -130,7 +139,7 @@ async def list_conversations(
             .order_by(Conversation.created_at.desc())
             .limit(limit)
             .offset(offset)
-        )
+        ).where(Conversation.tenant_id == tenant_id)
         if platform:
             stmt = stmt.where(Conversation.platform == platform)
         result = await session.execute(stmt)
@@ -154,19 +163,25 @@ async def set_handoff(conversation_id: int, enabled: bool) -> None:
         )
         await session.commit()
 
-async def get_conversation(conversation_id: int) -> Optional[Conversation]:
+async def get_conversation(conversation_id: int, tenant_id: str = "default") -> Optional[Conversation]:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
-        stmt = select(Conversation).options(joinedload(Conversation.user)).where(Conversation.id == conversation_id)
+        stmt = (
+            select(Conversation)
+            .options(joinedload(Conversation.user))
+            .where(Conversation.id == conversation_id, Conversation.tenant_id == tenant_id)
+        )
         result = await session.execute(stmt)
         return result.scalar_one_or_none()
 
-async def list_messages_by_conversation(conversation_id: int, limit: int = 50) -> List[Dict[str, object]]:
+async def list_messages_by_conversation(
+    conversation_id: int, limit: int = 50, tenant_id: str = "default"
+) -> List[Dict[str, object]]:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
         stmt = (
             select(Message.id, Message.sender, Message.content, Message.created_at)
-            .where(Message.conversation_id == conversation_id)
+            .where(Message.conversation_id == conversation_id, Message.tenant_id == tenant_id)
             .order_by(Message.created_at.desc())
             .limit(limit)
         )
@@ -183,12 +198,12 @@ async def list_messages_by_conversation(conversation_id: int, limit: int = 50) -
             for row in rows
         ]
 
-async def get_recent_messages(conversation_id: int, limit: int = 10) -> List[Dict[str, str]]:
+async def get_recent_messages(conversation_id: int, limit: int = 10, tenant_id: str = "default") -> List[Dict[str, str]]:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
         stmt = (
             select(Message.sender, Message.content)
-            .where(Message.conversation_id == conversation_id)
+            .where(Message.conversation_id == conversation_id, Message.tenant_id == tenant_id)
             .order_by(Message.created_at.desc())
             .limit(limit)
         )
@@ -204,6 +219,7 @@ async def create_lead(
     phone: Optional[str] = None,
     email: Optional[str] = None,
     conversation_id: Optional[int] = None,
+    tenant_id: str = "default",
 ) -> Lead:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
@@ -214,40 +230,99 @@ async def create_lead(
             phone=phone,
             email=email,
             conversation_id=conversation_id,
+            tenant_id=tenant_id,
         )
         session.add(lead)
         await session.commit()
         await session.refresh(lead)
         return lead
 
-async def list_leads(limit: int = 50, offset: int = 0) -> List[Lead]:
+async def list_leads(limit: int = 50, offset: int = 0, tenant_id: str = "default") -> List[Lead]:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
-        stmt = select(Lead).order_by(Lead.created_at.desc()).limit(limit).offset(offset)
+        stmt = (
+            select(Lead)
+            .where(Lead.tenant_id == tenant_id)
+            .order_by(Lead.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
         result = await session.execute(stmt)
         return list(result.scalars().all())
 
-async def get_analytics() -> Dict[str, int | Dict[str, int]]:
+async def list_users_by_platform(platform: Optional[str] = None, tenant_id: str = "default") -> List[User]:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
-        total_messages = (await session.execute(select(func.count(Message.id)))).scalar_one()
-        total_conversations = (await session.execute(select(func.count(Conversation.id)))).scalar_one()
-        total_leads = (await session.execute(select(func.count(Lead.id)))).scalar_one()
+        stmt = select(User).where(User.tenant_id == tenant_id)
+        if platform:
+            stmt = stmt.where(User.platform == platform)
+        result = await session.execute(stmt)
+        return list(result.scalars().all())
 
-        channel_stmt = select(Conversation.platform, func.count(Conversation.id)).group_by(Conversation.platform)
+
+async def list_inactive_conversations(
+    hours_inactive: int = 24,
+    platform: Optional[str] = None,
+    tenant_id: str = "default",
+) -> List[Conversation]:
+    cutoff = datetime.utcnow() - timedelta(hours=hours_inactive)
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        last_message = func.max(Message.created_at).label("last_message_at")
+        stmt = (
+            select(Conversation)
+            .options(joinedload(Conversation.user))
+            .join(Message, Message.conversation_id == Conversation.id)
+            .where(Conversation.tenant_id == tenant_id, Message.tenant_id == tenant_id)
+            .group_by(Conversation.id)
+            .having(last_message < cutoff)
+        )
+        if platform:
+            stmt = stmt.where(Conversation.platform == platform)
+        result = await session.execute(stmt)
+        return list(result.scalars().all())
+
+async def get_analytics(tenant_id: str = "default") -> Dict[str, int | Dict[str, int]]:
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        total_messages = (
+            await session.execute(select(func.count(Message.id)).where(Message.tenant_id == tenant_id))
+        ).scalar_one()
+        total_conversations = (
+            await session.execute(select(func.count(Conversation.id)).where(Conversation.tenant_id == tenant_id))
+        ).scalar_one()
+        total_leads = (
+            await session.execute(select(func.count(Lead.id)).where(Lead.tenant_id == tenant_id))
+        ).scalar_one()
+
+        channel_stmt = (
+            select(Conversation.platform, func.count(Conversation.id))
+            .where(Conversation.tenant_id == tenant_id)
+            .group_by(Conversation.platform)
+        )
         channel_rows = (await session.execute(channel_stmt)).all()
         channels = {row[0]: row[1] for row in channel_rows}
 
-        user_stmt = select(User.platform, func.count(User.id)).group_by(User.platform)
+        user_stmt = (
+            select(User.platform, func.count(User.id))
+            .where(User.tenant_id == tenant_id)
+            .group_by(User.platform)
+        )
         user_rows = (await session.execute(user_stmt)).all()
         users_by_platform = {row[0]: row[1] for row in user_rows}
 
-        conv_stmt = select(Conversation.platform, func.count(Conversation.id)).group_by(Conversation.platform)
+        conv_stmt = (
+            select(Conversation.platform, func.count(Conversation.id))
+            .where(Conversation.tenant_id == tenant_id)
+            .group_by(Conversation.platform)
+        )
         conv_rows = (await session.execute(conv_stmt)).all()
         conversations_by_platform = {row[0]: row[1] for row in conv_rows}
 
         since = datetime.utcnow() - timedelta(hours=24)
-        last_stmt = select(func.count(Message.id)).where(Message.created_at >= since)
+        last_stmt = select(func.count(Message.id)).where(
+            Message.created_at >= since, Message.tenant_id == tenant_id
+        )
         last_24h = (await session.execute(last_stmt)).scalar_one()
 
         return {
@@ -261,11 +336,13 @@ async def get_analytics() -> Dict[str, int | Dict[str, int]]:
         }
 
 
-async def get_advanced_analytics() -> Dict[str, object]:
+async def get_advanced_analytics(tenant_id: str = "default") -> Dict[str, object]:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
-        message_stmt = select(Message.conversation_id, Message.sender, Message.content, Message.created_at).order_by(
-            Message.created_at.asc()
+        message_stmt = (
+            select(Message.conversation_id, Message.sender, Message.content, Message.created_at)
+            .where(Message.tenant_id == tenant_id)
+            .order_by(Message.created_at.asc())
         )
         result = await session.execute(message_stmt)
         rows = list(result)
@@ -318,3 +395,24 @@ def _simple_sentiment(text: str, positive: set[str], negative: set[str]) -> str:
     if neg > pos:
         return "negative"
     return "neutral"
+
+
+async def add_audit_log(action: str, detail: str, actor: str = "system", tenant_id: str = "default") -> None:
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        entry = AuditLog(tenant_id=tenant_id, actor=actor, action=action, detail=detail)
+        session.add(entry)
+        await session.commit()
+
+
+async def list_audit_logs(limit: int = 100, tenant_id: str = "default") -> List[AuditLog]:
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        stmt = (
+            select(AuditLog)
+            .where(AuditLog.tenant_id == tenant_id)
+            .order_by(AuditLog.created_at.desc())
+            .limit(limit)
+        )
+        result = await session.execute(stmt)
+        return list(result.scalars().all())

@@ -67,7 +67,7 @@ export async function getMessages(): Promise<
 }
 
 export async function getConversations(limit = 50, offset = 0, platform?: string): Promise<
-  Array<{ id: number; platform: string; status: string; user_external_id: string; created_at: string }>
+  Array<{ id: number; platform: string; status: string; handoff_enabled: boolean; user_external_id: string; created_at: string }>
 > {
   const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
   if (platform) {
@@ -81,6 +81,7 @@ export async function getConversations(limit = 50, offset = 0, platform?: string
     id: number;
     platform: string;
     status: string;
+    handoff_enabled: boolean;
     user_external_id: string;
     created_at: string;
   }>;
@@ -139,6 +140,9 @@ export async function getSettings(): Promise<{
   smtp_from: string | null;
   smtp_tls: boolean;
   smtp_configured: boolean;
+  bot_persona: string;
+  bot_tone: string;
+  bot_system_prompt: string | null;
 }> {
   const response = await fetch(`${API_BASE}/admin/settings`, { headers: adminHeaders() });
   if (!response.ok) {
@@ -164,6 +168,9 @@ export async function getSettings(): Promise<{
     smtp_from: string | null;
     smtp_tls: boolean;
     smtp_configured: boolean;
+    bot_persona: string;
+    bot_tone: string;
+    bot_system_prompt: string | null;
   };
 }
 
@@ -350,6 +357,92 @@ export async function exportReport(reportType: "leads" | "messages" = "leads"): 
     throw new Error("Failed to export report");
   }
   return await response.blob();
+}
+
+export async function analyzeIntelligence(text: string): Promise<{
+  intent: string;
+  confidence: number;
+  entities: Record<string, string[]>;
+  summary: string;
+  suggested_responses: string[];
+}> {
+  const response = await fetch(`${API_BASE}/admin/intelligence/analyze`, {
+    method: "POST",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ text }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to analyze intelligence");
+  }
+  return (await response.json()) as {
+    intent: string;
+    confidence: number;
+    entities: Record<string, string[]>;
+    summary: string;
+    suggested_responses: string[];
+  };
+}
+
+export async function broadcastCampaign(platform: string, message: string): Promise<{ sent: number }> {
+  const response = await fetch(`${API_BASE}/admin/campaigns/broadcast`, {
+    method: "POST",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ platform, message }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to send broadcast");
+  }
+  return (await response.json()) as { sent: number };
+}
+
+export async function recoveryCampaign(payload: {
+  platform?: string;
+  hours_inactive: number;
+  message: string;
+}): Promise<{ sent: number }> {
+  const response = await fetch(`${API_BASE}/admin/campaigns/recovery`, {
+    method: "POST",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to send recovery campaign");
+  }
+  return (await response.json()) as { sent: number };
+}
+
+export async function getFlows(): Promise<Array<{ id: string; name: string; nodes: Array<{ id: string; type: string; label: string; next?: string }> }>> {
+  const response = await fetch(`${API_BASE}/admin/flows`, { headers: adminHeaders() });
+  if (!response.ok) {
+    throw new Error("Failed to load flows");
+  }
+  return (await response.json()) as Array<{ id: string; name: string; nodes: Array<{ id: string; type: string; label: string; next?: string }> }>;
+}
+
+export async function createFlow(payload: {
+  name: string;
+  nodes: Array<{ id: string; type: string; label: string; next?: string }>;
+}): Promise<{ id: string; name: string; nodes: Array<{ id: string; type: string; label: string; next?: string }> }> {
+  const response = await fetch(`${API_BASE}/admin/flows`, {
+    method: "POST",
+    headers: adminHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to create flow");
+  }
+  return (await response.json()) as { id: string; name: string; nodes: Array<{ id: string; type: string; label: string; next?: string }> };
+}
+
+export async function deleteFlow(flowId: string): Promise<{ status: string }> {
+  const response = await fetch(`${API_BASE}/admin/flows/${flowId}`, {
+    method: "DELETE",
+    headers: adminHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to delete flow");
+  }
+  return (await response.json()) as { status: string };
 }
 
 export async function simulateConversation(prompt: string, turns: number): Promise<{ transcript: Array<{ role: string; content: string }> }> {

@@ -146,6 +146,43 @@ class WorkflowRule(BaseModel):
 class WorkflowRulesUpdate(BaseModel):
     rules: List[WorkflowRule]
 
+class FlowNode(BaseModel):
+    id: str
+    type: str
+    label: str
+    next: Optional[str] = None
+
+class FlowView(BaseModel):
+    id: str
+    name: str
+    nodes: List[FlowNode]
+
+class FlowUpdate(BaseModel):
+    name: str
+    nodes: List[FlowNode]
+
+class BroadcastRequest(BaseModel):
+    platform: str
+    message: str
+
+class RecoveryRequest(BaseModel):
+    platform: Optional[str] = None
+    hours_inactive: int = 24
+    message: str = "We noticed you stopped chatting. Can we help?"
+
+class IntelligenceRequest(BaseModel):
+    text: str
+
+class IntelligenceResponse(BaseModel):
+    intent: str
+    confidence: float
+    entities: Dict[str, List[str]]
+    summary: str
+    suggested_responses: List[str]
+
+class ConversationSummaryResponse(BaseModel):
+    summary: str
+
 class SimulationRequest(BaseModel):
     prompt: str
     turns: int = 3
