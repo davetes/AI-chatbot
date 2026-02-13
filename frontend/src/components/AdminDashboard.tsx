@@ -53,76 +53,106 @@ export default function AdminDashboard() {
     load();
   }, []);
 
+  const channelEntries = analytics ? Object.entries(analytics.channels) : [];
+
   return (
     <div className="admin-card">
-      <h2>Admin Dashboard</h2>
+      <div className="admin-header">
+        <div>
+          <p className="admin-eyebrow">Overview</p>
+          <h2>Admin Dashboard</h2>
+          <p className="admin-subtitle">Monitor conversations, leads, and channel performance.</p>
+        </div>
+        <div className="admin-actions">
+          <button className="admin-button" disabled={loading}>
+            Refresh
+          </button>
+        </div>
+      </div>
+
       <div className="admin-grid">
         <div className="admin-panel">
           <h3>Total Messages</h3>
-          <p>{loading ? "..." : analytics?.total_messages ?? "0"}</p>
+          <p className="admin-metric">{loading ? "..." : analytics?.total_messages ?? "0"}</p>
         </div>
         <div className="admin-panel">
           <h3>Total Conversations</h3>
-          <p>{loading ? "..." : analytics?.total_conversations ?? "0"}</p>
+          <p className="admin-metric">{loading ? "..." : analytics?.total_conversations ?? "0"}</p>
         </div>
         <div className="admin-panel">
           <h3>Total Leads</h3>
-          <p>{loading ? "..." : analytics?.total_leads ?? "0"}</p>
+          <p className="admin-metric">{loading ? "..." : analytics?.total_leads ?? "0"}</p>
         </div>
         <div className="admin-panel">
           <h3>Last 24h</h3>
-          <p>{loading ? "..." : analytics?.last_24h ?? "0"}</p>
+          <p className="admin-metric">{loading ? "..." : analytics?.last_24h ?? "0"}</p>
         </div>
-        <div className="admin-panel">
+      </div>
+
+      <div className="admin-section" id="channels">
+        <div className="admin-section-header">
           <h3>Channels</h3>
-          <ul>
-            {loading
-              ? "..."
-              : analytics
-              ? Object.entries(analytics.channels).map(([name, count]) => (
-                  <li key={name}>
-                    {name}: {count}
-                  </li>
-                ))
-              : "No data"}
-          </ul>
+        </div>
+        <div className="admin-chips">
+          {loading && <span className="admin-chip">Loading…</span>}
+          {!loading && channelEntries.length === 0 && <span className="admin-chip">No data</span>}
+          {!loading &&
+            channelEntries.map(([name, count]) => (
+              <span key={name} className="admin-chip">
+                {name} · {count}
+              </span>
+            ))}
         </div>
       </div>
 
       {error && <p className="admin-error">{error}</p>}
 
-      <h3 style={{ marginTop: "24px" }}>Recent Conversations</h3>
-      <div className="admin-table">
-        {loading && <div className="admin-row">Loading conversations...</div>}
-        {!loading && conversations.length === 0 && <div className="admin-row">No conversations yet.</div>}
-        {!loading &&
-          conversations.map((conv) => (
-            <div key={conv.id} className="admin-row">
-              <div>
-                <strong>{conv.platform}</strong> • {new Date(conv.created_at).toLocaleString()}
+      <div className="admin-section" id="conversations">
+        <div className="admin-section-header">
+          <h3>Recent Conversations</h3>
+        </div>
+        <div className="admin-table">
+          {loading && <div className="admin-row">Loading conversations...</div>}
+          {!loading && conversations.length === 0 && <div className="admin-row">No conversations yet.</div>}
+          {!loading &&
+            conversations.map((conv) => (
+              <div key={conv.id} className="admin-row">
+                <div className="admin-row-title">
+                  <span className="admin-badge">{conv.platform}</span>
+                  <span>{new Date(conv.created_at).toLocaleString()}</span>
+                </div>
+                <div className="admin-row-content">
+                  <span>User: {conv.user_external_id}</span>
+                  <span>Status: {conv.status}</span>
+                </div>
               </div>
-              <div>User: {conv.user_external_id}</div>
-              <div>Status: {conv.status}</div>
-            </div>
-          ))}
+            ))}
+        </div>
       </div>
 
-      <h3 style={{ marginTop: "24px" }}>Recent Leads</h3>
-      <div className="admin-table">
-        {loading && <div className="admin-row">Loading leads...</div>}
-        {!loading && leads.length === 0 && <div className="admin-row">No leads yet.</div>}
-        {!loading &&
-          leads.map((lead) => (
-            <div key={lead.id} className="admin-row">
-              <div>
-                <strong>{lead.platform}</strong> • {new Date(lead.created_at).toLocaleString()}
+      <div className="admin-section" id="leads">
+        <div className="admin-section-header">
+          <h3>Recent Leads</h3>
+        </div>
+        <div className="admin-table">
+          {loading && <div className="admin-row">Loading leads...</div>}
+          {!loading && leads.length === 0 && <div className="admin-row">No leads yet.</div>}
+          {!loading &&
+            leads.map((lead) => (
+              <div key={lead.id} className="admin-row">
+                <div className="admin-row-title">
+                  <span className="admin-badge">{lead.platform}</span>
+                  <span>{new Date(lead.created_at).toLocaleString()}</span>
+                </div>
+                <div className="admin-row-content">
+                  <span>Name: {lead.name ?? "-"}</span>
+                  <span>Phone: {lead.phone ?? "-"}</span>
+                  <span>Email: {lead.email ?? "-"}</span>
+                  <span>Intent: {lead.intent ?? "-"}</span>
+                </div>
               </div>
-              <div>Name: {lead.name ?? "-"}</div>
-              <div>Phone: {lead.phone ?? "-"}</div>
-              <div>Email: {lead.email ?? "-"}</div>
-              <div>Intent: {lead.intent ?? "-"}</div>
-            </div>
-          ))}
+            ))}
+        </div>
       </div>
     </div>
   );
