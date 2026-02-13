@@ -15,7 +15,11 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("conversations", sa.Column("handoff_enabled", sa.Boolean(), server_default=sa.false(), nullable=False))
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    columns = {col["name"] for col in inspector.get_columns("conversations")} if inspector.has_table("conversations") else set()
+    if "handoff_enabled" not in columns:
+        op.add_column("conversations", sa.Column("handoff_enabled", sa.Boolean(), server_default=sa.false(), nullable=False))
 
 
 def downgrade() -> None:
