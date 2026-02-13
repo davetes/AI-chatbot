@@ -143,6 +143,28 @@ async def list_conversations(
             for row in result
         ]
 
+async def list_messages_by_conversation(conversation_id: int, limit: int = 50) -> List[Dict[str, object]]:
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        stmt = (
+            select(Message.id, Message.sender, Message.content, Message.created_at)
+            .where(Message.conversation_id == conversation_id)
+            .order_by(Message.created_at.desc())
+            .limit(limit)
+        )
+        result = await session.execute(stmt)
+        rows = list(result)
+        rows.reverse()
+        return [
+            {
+                "id": row.id,
+                "sender": row.sender,
+                "content": row.content,
+                "created_at": row.created_at,
+            }
+            for row in rows
+        ]
+
 async def get_recent_messages(conversation_id: int, limit: int = 10) -> List[Dict[str, str]]:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:

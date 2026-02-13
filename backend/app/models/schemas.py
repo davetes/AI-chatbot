@@ -29,6 +29,12 @@ class ConversationOut(BaseModel):
     user_external_id: str
     created_at: datetime
 
+class ConversationMessageOut(BaseModel):
+    id: int
+    sender: str
+    content: str
+    created_at: datetime
+
 class LeadOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int

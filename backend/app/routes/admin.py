@@ -1,8 +1,8 @@
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Query
-from app.models.schemas import AnalyticsResponse, ConversationOut, LeadOut, MessageOut
-from app.services.db import get_analytics, list_conversations, list_leads, list_messages
+from app.models.schemas import AnalyticsResponse, ConversationMessageOut, ConversationOut, LeadOut, MessageOut
+from app.services.db import get_analytics, list_conversations, list_leads, list_messages, list_messages_by_conversation
 
 router = APIRouter()
 
@@ -21,6 +21,10 @@ async def conversations(
     platform: Optional[str] = None,
 ) -> List[ConversationOut]:
     return await list_conversations(limit=limit, offset=offset, platform=platform)
+
+@router.get("/conversations/{conversation_id}/messages", response_model=List[ConversationMessageOut])
+async def conversation_messages(conversation_id: int, limit: int = Query(50, ge=1, le=200)) -> List[ConversationMessageOut]:
+    return await list_messages_by_conversation(conversation_id, limit=limit)
 
 @router.get("/leads", response_model=List[LeadOut])
 async def leads(

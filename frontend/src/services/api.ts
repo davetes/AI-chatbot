@@ -15,12 +15,24 @@ export async function sendMessage(message: string): Promise<string> {
   return data.reply;
 }
 
-export async function getAnalytics(): Promise<{ total_messages: number; channels: Record<string, number>; last_24h: number }> {
+export async function getAnalytics(): Promise<{
+  total_messages: number;
+  channels: Record<string, number>;
+  last_24h: number;
+  total_conversations: number;
+  total_leads: number;
+}> {
   const response = await fetch(`${API_BASE}/admin/analytics`);
   if (!response.ok) {
     throw new Error("Failed to load analytics");
   }
-  return (await response.json()) as { total_messages: number; channels: Record<string, number>; last_24h: number };
+  return (await response.json()) as {
+    total_messages: number;
+    channels: Record<string, number>;
+    last_24h: number;
+    total_conversations: number;
+    total_leads: number;
+  };
 }
 
 export async function getMessages(): Promise<
@@ -41,10 +53,14 @@ export async function getMessages(): Promise<
   }>;
 }
 
-export async function getConversations(): Promise<
+export async function getConversations(limit = 50, offset = 0, platform?: string): Promise<
   Array<{ id: number; platform: string; status: string; user_external_id: string; created_at: string }>
 > {
-  const response = await fetch(`${API_BASE}/admin/conversations?limit=50`);
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+  if (platform) {
+    params.set("platform", platform);
+  }
+  const response = await fetch(`${API_BASE}/admin/conversations?${params.toString()}`);
   if (!response.ok) {
     throw new Error("Failed to load conversations");
   }
@@ -53,6 +69,21 @@ export async function getConversations(): Promise<
     platform: string;
     status: string;
     user_external_id: string;
+    created_at: string;
+  }>;
+}
+
+export async function getConversationMessages(conversationId: number, limit = 50): Promise<
+  Array<{ id: number; sender: string; content: string; created_at: string }>
+> {
+  const response = await fetch(`${API_BASE}/admin/conversations/${conversationId}/messages?limit=${limit}`);
+  if (!response.ok) {
+    throw new Error("Failed to load conversation messages");
+  }
+  return (await response.json()) as Array<{
+    id: number;
+    sender: string;
+    content: string;
     created_at: string;
   }>;
 }
