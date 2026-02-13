@@ -18,6 +18,8 @@ export async function sendMessage(message: string): Promise<string> {
 export async function getAnalytics(): Promise<{
   total_messages: number;
   channels: Record<string, number>;
+  users_by_platform: Record<string, number>;
+  conversations_by_platform: Record<string, number>;
   last_24h: number;
   total_conversations: number;
   total_leads: number;
@@ -29,6 +31,8 @@ export async function getAnalytics(): Promise<{
   return (await response.json()) as {
     total_messages: number;
     channels: Record<string, number>;
+    users_by_platform: Record<string, number>;
+    conversations_by_platform: Record<string, number>;
     last_24h: number;
     total_conversations: number;
     total_leads: number;
@@ -120,6 +124,12 @@ export async function getSettings(): Promise<{
   crm_webhook_url: string | null;
   sheets_webhook_url: string | null;
   database_url: string | null;
+  smtp_host: string | null;
+  smtp_port: number | null;
+  smtp_user: string | null;
+  smtp_from: string | null;
+  smtp_tls: boolean;
+  smtp_configured: boolean;
 }> {
   const response = await fetch(`${API_BASE}/admin/settings`);
   if (!response.ok) {
@@ -139,6 +149,12 @@ export async function getSettings(): Promise<{
     crm_webhook_url: string | null;
     sheets_webhook_url: string | null;
     database_url: string | null;
+    smtp_host: string | null;
+    smtp_port: number | null;
+    smtp_user: string | null;
+    smtp_from: string | null;
+    smtp_tls: boolean;
+    smtp_configured: boolean;
   };
 }
 
@@ -156,6 +172,12 @@ export async function updateSettings(payload: {
   crm_webhook_url?: string;
   sheets_webhook_url?: string;
   database_url?: string;
+  smtp_host?: string;
+  smtp_port?: number;
+  smtp_user?: string;
+  smtp_pass?: string;
+  smtp_from?: string;
+  smtp_tls?: boolean;
 }): Promise<ReturnType<typeof getSettings>> {
   const response = await fetch(`${API_BASE}/admin/settings`, {
     method: "POST",
@@ -168,4 +190,18 @@ export async function updateSettings(payload: {
     throw new Error("Failed to update settings");
   }
   return (await response.json()) as ReturnType<typeof getSettings>;
+}
+
+export async function sendEmailReply(to: string, subject: string, message: string): Promise<{ reply: string }> {
+  const response = await fetch(`${API_BASE}/admin/email/reply`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ to, subject, message }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to send email reply");
+  }
+  return (await response.json()) as { reply: string };
 }

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import AdminDashboard from "../../components/AdminDashboard";
 
-type AdminSection = "dashboard" | "conversations" | "leads" | "channels" | "settings";
+type AdminSection = "dashboard" | "conversations" | "leads" | "channels" | "settings" | "email";
 
 export default function AdminPage() {
   const [activeSection, setActiveSection] = useState<AdminSection>("dashboard");
@@ -52,6 +52,14 @@ export default function AdminPage() {
             onClick={() => setActiveSection("settings")}
           >
             Settings
+          </button>
+          <button
+            className={`px-3 py-2 rounded-lg font-semibold text-left hover:bg-slate-900/80 ${
+              activeSection === "email" ? "bg-slate-900/80" : ""
+            }`}
+            onClick={() => setActiveSection("email")}
+          >
+            Email
           </button>
         </nav>
       </aside>

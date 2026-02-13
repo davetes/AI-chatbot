@@ -8,11 +8,14 @@ import {
   getLeads,
   getSettings,
   updateSettings,
+  sendEmailReply,
 } from "../services/api";
 
 type Analytics = {
   total_messages: number;
   channels: Record<string, number>;
+  users_by_platform: Record<string, number>;
+  conversations_by_platform: Record<string, number>;
   last_24h: number;
   total_conversations: number;
   total_leads: number;
@@ -43,7 +46,7 @@ type Lead = {
   created_at: string;
 };
 
-type AdminSection = "dashboard" | "conversations" | "leads" | "channels" | "settings";
+type AdminSection = "dashboard" | "conversations" | "leads" | "channels" | "settings" | "email";
 
 export default function AdminDashboard({ activeSection }: { activeSection: AdminSection }) {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
@@ -66,8 +69,16 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
     crm_webhook_url: "",
     sheets_webhook_url: "",
     database_url: "",
+    smtp_host: "",
+    smtp_port: "",
+    smtp_user: "",
+    smtp_pass: "",
+    smtp_from: "",
+    smtp_tls: "true",
   });
   const [settingsSaved, setSettingsSaved] = useState(false);
+  const [emailForm, setEmailForm] = useState({ to: "", subject: "", message: "" });
+  const [emailReply, setEmailReply] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -104,6 +115,12 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
         crm_webhook_url: s.crm_webhook_url ?? "",
         sheets_webhook_url: s.sheets_webhook_url ?? "",
         database_url: s.database_url ?? "",
+        smtp_host: s.smtp_host ?? "",
+        smtp_port: s.smtp_port ? String(s.smtp_port) : "",
+        smtp_user: s.smtp_user ?? "",
+        smtp_pass: "",
+        smtp_from: s.smtp_from ?? "",
+        smtp_tls: s.smtp_tls ? "true" : "false",
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load admin data");
@@ -149,6 +166,12 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
         crm_webhook_url: settingsForm.crm_webhook_url || undefined,
         sheets_webhook_url: settingsForm.sheets_webhook_url || undefined,
         database_url: settingsForm.database_url || undefined,
+        smtp_host: settingsForm.smtp_host || undefined,
+        smtp_port: settingsForm.smtp_port ? Number(settingsForm.smtp_port) : undefined,
+        smtp_user: settingsForm.smtp_user || undefined,
+        smtp_pass: settingsForm.smtp_pass || undefined,
+        smtp_from: settingsForm.smtp_from || undefined,
+        smtp_tls: settingsForm.smtp_tls ? settingsForm.smtp_tls === "true" : undefined,
       });
       setSettingsData(updated);
       setSettingsForm((prev) => ({
@@ -158,6 +181,7 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
         meta_access_token: "",
         meta_page_access_token: "",
         telegram_bot_token: "",
+        smtp_pass: "",
       }));
       setSettingsSaved(true);
     } catch (err) {
@@ -165,7 +189,19 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
     }
   };
 
+  const handleEmailReply = async () => {
+    try {
+      setError(null);
+      const response = await sendEmailReply(emailForm.to, emailForm.subject, emailForm.message);
+      setEmailReply(response.reply);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send email reply");
+    }
+  };
+
   const channelEntries = analytics ? Object.entries(analytics.channels) : [];
+  const userEntries = analytics ? Object.entries(analytics.users_by_platform) : [];
+  const conversationEntries = analytics ? Object.entries(analytics.conversations_by_platform) : [];
   const filteredConversations = conversations.filter((conv) =>
     conv.user_external_id.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -190,22 +226,57 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
       </div>
 
       {activeSection === "dashboard" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-            <h3 className="text-sm text-slate-400">Total Messages</h3>
-            <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.total_messages ?? "0"}</p>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
+              <h3 className="text-sm text-slate-400">Total Messages</h3>
+              <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.total_messages ?? "0"}</p>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
+              <h3 className="text-sm text-slate-400">Total Conversations</h3>
+              <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.total_conversations ?? "0"}</p>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
+              <h3 className="text-sm text-slate-400">Total Leads</h3>
+              <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.total_leads ?? "0"}</p>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
+              <h3 className="text-sm text-slate-400">Last 24h</h3>
+              <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.last_24h ?? "0"}</p>
+            </div>
           </div>
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-            <h3 className="text-sm text-slate-400">Total Conversations</h3>
-            <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.total_conversations ?? "0"}</p>
-          </div>
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-            <h3 className="text-sm text-slate-400">Total Leads</h3>
-            <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.total_leads ?? "0"}</p>
-          </div>
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-            <h3 className="text-sm text-slate-400">Last 24h</h3>
-            <p className="text-2xl font-semibold mt-2">{loading ? "..." : analytics?.last_24h ?? "0"}</p>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
+              <h3 className="text-sm text-slate-400 mb-3">Users by Platform</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {loading && <div className="text-sm text-slate-400">Loading…</div>}
+                {!loading && userEntries.length === 0 && <div className="text-sm text-slate-400">No data</div>}
+                {!loading &&
+                  userEntries.map(([name, count]) => (
+                    <div key={name} className="p-3 rounded-lg border border-slate-800 bg-slate-900">
+                      <p className="text-xs text-slate-400">{name}</p>
+                      <p className="text-xl font-semibold">{count}</p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
+              <h3 className="text-sm text-slate-400 mb-3">Conversations by Platform</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {loading && <div className="text-sm text-slate-400">Loading…</div>}
+                {!loading && conversationEntries.length === 0 && (
+                  <div className="text-sm text-slate-400">No data</div>
+                )}
+                {!loading &&
+                  conversationEntries.map(([name, count]) => (
+                    <div key={name} className="p-3 rounded-lg border border-slate-800 bg-slate-900">
+                      <p className="text-xs text-slate-400">{name}</p>
+                      <p className="text-xl font-semibold">{count}</p>
+                    </div>
+                  ))}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -368,123 +439,206 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
             <h3 className="text-lg font-semibold">Settings</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-4">
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-6">
               <div>
-                <label className="text-sm text-slate-400">AI Provider</label>
-                <input
-                  value={settingsForm.ai_provider}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, ai_provider: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder="openai | groq"
-                />
+                <h4 className="text-sm font-semibold text-slate-300">AI Provider</h4>
+                <div className="mt-3 space-y-4">
+                  <div>
+                    <label className="text-sm text-slate-400">AI Provider</label>
+                    <input
+                      value={settingsForm.ai_provider}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, ai_provider: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="openai | groq"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">AI Model</label>
+                    <input
+                      value={settingsForm.ai_model}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, ai_model: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="gpt-4o-mini | llama3-8b-8192"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">AI Base URL</label>
+                    <input
+                      value={settingsForm.ai_base_url}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, ai_base_url: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="https://api.groq.com/openai/v1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">AI API Key</label>
+                    <input
+                      value={settingsForm.ai_api_key}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, ai_api_key: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder={settingsData?.has_ai_api_key ? "Configured" : "Enter API key"}
+                    />
+                  </div>
+                </div>
               </div>
+
               <div>
-                <label className="text-sm text-slate-400">AI Model</label>
-                <input
-                  value={settingsForm.ai_model}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, ai_model: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder="gpt-4o-mini | llama3-8b-8192"
-                />
+                <h4 className="text-sm font-semibold text-slate-300">Messaging Platforms</h4>
+                <div className="mt-3 space-y-4">
+                  <div>
+                    <label className="text-sm text-slate-400">Verify Token</label>
+                    <input
+                      value={settingsForm.verify_token}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, verify_token: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder={settingsData?.verify_token_set ? "Configured" : "Enter verify token"}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">Meta API Version</label>
+                    <input
+                      value={settingsForm.meta_api_version}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, meta_api_version: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="v19.0"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">Meta Access Token</label>
+                    <input
+                      value={settingsForm.meta_access_token}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, meta_access_token: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder={settingsData?.meta_access_token_set ? "Configured" : "Enter Meta access token"}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">Meta Page Access Token</label>
+                    <input
+                      value={settingsForm.meta_page_access_token}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, meta_page_access_token: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder={settingsData?.meta_page_access_token_set ? "Configured" : "Enter page access token"}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">Meta Phone Number ID</label>
+                    <input
+                      value={settingsForm.meta_phone_number_id}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, meta_phone_number_id: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="Enter phone number ID"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">Telegram Bot Token</label>
+                    <input
+                      value={settingsForm.telegram_bot_token}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, telegram_bot_token: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder={settingsData?.telegram_bot_token_set ? "Configured" : "Enter Telegram bot token"}
+                    />
+                  </div>
+                </div>
               </div>
+
               <div>
-                <label className="text-sm text-slate-400">AI Base URL</label>
-                <input
-                  value={settingsForm.ai_base_url}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, ai_base_url: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder="https://api.groq.com/openai/v1"
-                />
+                <h4 className="text-sm font-semibold text-slate-300">CRM & Sheets</h4>
+                <div className="mt-3 space-y-4">
+                  <div>
+                    <label className="text-sm text-slate-400">CRM Webhook URL</label>
+                    <input
+                      value={settingsForm.crm_webhook_url}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, crm_webhook_url: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="https://your-crm-webhook"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">Sheets Webhook URL</label>
+                    <input
+                      value={settingsForm.sheets_webhook_url}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, sheets_webhook_url: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="https://your-sheets-webhook"
+                    />
+                  </div>
+                </div>
               </div>
+
               <div>
-                <label className="text-sm text-slate-400">AI API Key</label>
-                <input
-                  value={settingsForm.ai_api_key}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, ai_api_key: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder={settingsData?.has_ai_api_key ? "Configured" : "Enter API key"}
-                />
+                <h4 className="text-sm font-semibold text-slate-300">Database</h4>
+                <div className="mt-3">
+                  <label className="text-sm text-slate-400">Database URL</label>
+                  <input
+                    value={settingsForm.database_url}
+                    onChange={(event) => setSettingsForm({ ...settingsForm, database_url: event.target.value })}
+                    className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                    placeholder="postgresql+asyncpg://user:pass@host:5432/db"
+                  />
+                </div>
               </div>
+
               <div>
-                <label className="text-sm text-slate-400">Verify Token</label>
-                <input
-                  value={settingsForm.verify_token}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, verify_token: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder={settingsData?.verify_token_set ? "Configured" : "Enter verify token"}
-                />
-              </div>
-              <div>
-                <label className="text-sm text-slate-400">Meta API Version</label>
-                <input
-                  value={settingsForm.meta_api_version}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, meta_api_version: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder="v19.0"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-slate-400">Meta Access Token</label>
-                <input
-                  value={settingsForm.meta_access_token}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, meta_access_token: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder={settingsData?.meta_access_token_set ? "Configured" : "Enter Meta access token"}
-                />
-              </div>
-              <div>
-                <label className="text-sm text-slate-400">Meta Page Access Token</label>
-                <input
-                  value={settingsForm.meta_page_access_token}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, meta_page_access_token: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder={settingsData?.meta_page_access_token_set ? "Configured" : "Enter page access token"}
-                />
-              </div>
-              <div>
-                <label className="text-sm text-slate-400">Meta Phone Number ID</label>
-                <input
-                  value={settingsForm.meta_phone_number_id}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, meta_phone_number_id: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder="Enter phone number ID"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-slate-400">Telegram Bot Token</label>
-                <input
-                  value={settingsForm.telegram_bot_token}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, telegram_bot_token: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder={settingsData?.telegram_bot_token_set ? "Configured" : "Enter Telegram bot token"}
-                />
-              </div>
-              <div>
-                <label className="text-sm text-slate-400">CRM Webhook URL</label>
-                <input
-                  value={settingsForm.crm_webhook_url}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, crm_webhook_url: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder="https://your-crm-webhook"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-slate-400">Sheets Webhook URL</label>
-                <input
-                  value={settingsForm.sheets_webhook_url}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, sheets_webhook_url: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder="https://your-sheets-webhook"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-slate-400">Database URL</label>
-                <input
-                  value={settingsForm.database_url}
-                  onChange={(event) => setSettingsForm({ ...settingsForm, database_url: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
-                  placeholder="postgresql+asyncpg://user:pass@host:5432/db"
-                />
+                <h4 className="text-sm font-semibold text-slate-300">SMTP Email</h4>
+                <div className="mt-3 space-y-4">
+                  <div>
+                    <label className="text-sm text-slate-400">SMTP Host</label>
+                    <input
+                      value={settingsForm.smtp_host}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, smtp_host: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="smtp.gmail.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">SMTP Port</label>
+                    <input
+                      value={settingsForm.smtp_port}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, smtp_port: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="587"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">SMTP User</label>
+                    <input
+                      value={settingsForm.smtp_user}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, smtp_user: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">SMTP Password</label>
+                    <input
+                      value={settingsForm.smtp_pass}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, smtp_pass: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="App password"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">SMTP From</label>
+                    <input
+                      value={settingsForm.smtp_from}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, smtp_from: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                      placeholder="Support <support@example.com>"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400">SMTP TLS</label>
+                    <select
+                      value={settingsForm.smtp_tls}
+                      onChange={(event) => setSettingsForm({ ...settingsForm, smtp_tls: event.target.value })}
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                    >
+                      <option value="true">true</option>
+                      <option value="false">false</option>
+                    </select>
+                  </div>
+                </div>
               </div>
               <button
                 onClick={handleSettingsSave}
@@ -504,6 +658,56 @@ export default function AdminDashboard({ activeSection }: { activeSection: Admin
               <p>Telegram Token: {settingsData?.telegram_bot_token_set ? "Configured" : "Missing"}</p>
               <p>CRM Webhook: {settingsData?.crm_webhook_url ? "Configured" : "Missing"}</p>
               <p>Sheets Webhook: {settingsData?.sheets_webhook_url ? "Configured" : "Missing"}</p>
+              <p>SMTP: {settingsData?.smtp_configured ? "Configured" : "Missing"}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeSection === "email" && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Email Reply</h3>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-4">
+              <div>
+                <label className="text-sm text-slate-400">To</label>
+                <input
+                  value={emailForm.to}
+                  onChange={(event) => setEmailForm({ ...emailForm, to: event.target.value })}
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                  placeholder="user@example.com"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-400">Subject</label>
+                <input
+                  value={emailForm.subject}
+                  onChange={(event) => setEmailForm({ ...emailForm, subject: event.target.value })}
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100"
+                  placeholder="Re: Your request"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-400">Incoming Email</label>
+                <textarea
+                  value={emailForm.message}
+                  onChange={(event) => setEmailForm({ ...emailForm, message: event.target.value })}
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 min-h-[140px]"
+                  placeholder="Paste the customer email here..."
+                />
+              </div>
+              <button
+                onClick={handleEmailReply}
+                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold"
+              >
+                Generate & Send Reply
+              </button>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3 text-sm">
+              <p className="text-slate-300 font-semibold">AI Reply Preview</p>
+              <p className="text-slate-100 whitespace-pre-wrap">{emailReply || "No reply generated yet."}</p>
             </div>
           </div>
         </div>

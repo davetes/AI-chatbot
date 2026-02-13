@@ -220,6 +220,14 @@ async def get_analytics() -> Dict[str, int | Dict[str, int]]:
         channel_rows = (await session.execute(channel_stmt)).all()
         channels = {row[0]: row[1] for row in channel_rows}
 
+        user_stmt = select(User.platform, func.count(User.id)).group_by(User.platform)
+        user_rows = (await session.execute(user_stmt)).all()
+        users_by_platform = {row[0]: row[1] for row in user_rows}
+
+        conv_stmt = select(Conversation.platform, func.count(Conversation.id)).group_by(Conversation.platform)
+        conv_rows = (await session.execute(conv_stmt)).all()
+        conversations_by_platform = {row[0]: row[1] for row in conv_rows}
+
         since = datetime.utcnow() - timedelta(hours=24)
         last_stmt = select(func.count(Message.id)).where(Message.created_at >= since)
         last_24h = (await session.execute(last_stmt)).scalar_one()
@@ -227,6 +235,8 @@ async def get_analytics() -> Dict[str, int | Dict[str, int]]:
         return {
             "total_messages": int(total_messages),
             "channels": channels,
+            "users_by_platform": users_by_platform,
+            "conversations_by_platform": conversations_by_platform,
             "last_24h": int(last_24h),
             "total_conversations": int(total_conversations),
             "total_leads": int(total_leads),

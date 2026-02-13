@@ -7,13 +7,17 @@ from app.models.schemas import (
     AnalyticsResponse,
     ConversationMessageOut,
     ConversationOut,
+    EmailReplyRequest,
+    EmailReplyResponse,
     LeadOut,
     MessageOut,
     SettingsUpdate,
     SettingsView,
 )
+from app.services.email import send_email
 from app.services.db import get_analytics, list_conversations, list_leads, list_messages, list_messages_by_conversation
 from app.services.env import update_env_file
+from app.ai.chatbot import generate_reply
 
 router = APIRouter()
 
@@ -65,6 +69,12 @@ async def get_settings() -> SettingsView:
         crm_webhook_url=settings.crm_webhook_url or None,
         sheets_webhook_url=settings.sheets_webhook_url or None,
         database_url=settings.database_url or None,
+        smtp_host=settings.smtp_host or None,
+        smtp_port=settings.smtp_port,
+        smtp_user=settings.smtp_user or None,
+        smtp_from=settings.smtp_from or None,
+        smtp_tls=settings.smtp_tls,
+        smtp_configured=bool(settings.smtp_host and settings.smtp_user and settings.smtp_pass),
     )
 
 @router.post("/settings", response_model=SettingsView)
@@ -84,6 +94,12 @@ async def update_settings(payload: SettingsUpdate) -> SettingsView:
         "crm_webhook_url": "CRM_WEBHOOK_URL",
         "sheets_webhook_url": "SHEETS_WEBHOOK_URL",
         "database_url": "DATABASE_URL",
+        "smtp_host": "SMTP_HOST",
+        "smtp_port": "SMTP_PORT",
+        "smtp_user": "SMTP_USER",
+        "smtp_pass": "SMTP_PASS",
+        "smtp_from": "SMTP_FROM",
+        "smtp_tls": "SMTP_TLS",
     }
 
     for field, env_key in mapping.items():
@@ -98,3 +114,9 @@ async def update_settings(payload: SettingsUpdate) -> SettingsView:
         settings.reload()
 
     return await get_settings()
+
+@router.post("/email/reply", response_model=EmailReplyResponse)
+async def email_reply(payload: EmailReplyRequest) -> EmailReplyResponse:
+    reply, _ = await generate_reply(payload.message, channel="email", history=[])
+    send_email(payload.to, payload.subject, reply)
+    return EmailReplyResponse(reply=reply)

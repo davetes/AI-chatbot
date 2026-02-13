@@ -49,6 +49,8 @@ class LeadOut(BaseModel):
 class AnalyticsResponse(BaseModel):
     total_messages: int
     channels: Dict[str, int]
+    users_by_platform: Dict[str, int]
+    conversations_by_platform: Dict[str, int]
     last_24h: int
     total_conversations: int
     total_leads: int
@@ -67,6 +69,12 @@ class SettingsView(BaseModel):
     crm_webhook_url: Optional[str]
     sheets_webhook_url: Optional[str]
     database_url: Optional[str]
+    smtp_host: Optional[str]
+    smtp_port: Optional[int]
+    smtp_user: Optional[str]
+    smtp_from: Optional[str]
+    smtp_tls: bool
+    smtp_configured: bool
 
 class SettingsUpdate(BaseModel):
     ai_provider: Optional[str] = None
@@ -82,3 +90,17 @@ class SettingsUpdate(BaseModel):
     crm_webhook_url: Optional[str] = None
     sheets_webhook_url: Optional[str] = None
     database_url: Optional[str] = None
+    smtp_host: Optional[str] = None
+    smtp_port: Optional[int] = None
+    smtp_user: Optional[str] = None
+    smtp_pass: Optional[str] = None
+    smtp_from: Optional[str] = None
+    smtp_tls: Optional[bool] = None
+
+class EmailReplyRequest(BaseModel):
+    to: str
+    subject: str
+    message: str
+
+class EmailReplyResponse(BaseModel):
+    reply: str
