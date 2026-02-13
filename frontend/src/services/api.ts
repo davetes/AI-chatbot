@@ -105,3 +105,67 @@ export async function getLeads(): Promise<
     created_at: string;
   }>;
 }
+
+export async function getSettings(): Promise<{
+  ai_provider: string;
+  ai_model: string;
+  ai_base_url: string | null;
+  has_ai_api_key: boolean;
+  verify_token_set: boolean;
+  meta_api_version: string;
+  meta_phone_number_id: string | null;
+  meta_page_access_token_set: boolean;
+  meta_access_token_set: boolean;
+  telegram_bot_token_set: boolean;
+  crm_webhook_url: string | null;
+  sheets_webhook_url: string | null;
+  database_url: string | null;
+}> {
+  const response = await fetch(`${API_BASE}/admin/settings`);
+  if (!response.ok) {
+    throw new Error("Failed to load settings");
+  }
+  return (await response.json()) as {
+    ai_provider: string;
+    ai_model: string;
+    ai_base_url: string | null;
+    has_ai_api_key: boolean;
+    verify_token_set: boolean;
+    meta_api_version: string;
+    meta_phone_number_id: string | null;
+    meta_page_access_token_set: boolean;
+    meta_access_token_set: boolean;
+    telegram_bot_token_set: boolean;
+    crm_webhook_url: string | null;
+    sheets_webhook_url: string | null;
+    database_url: string | null;
+  };
+}
+
+export async function updateSettings(payload: {
+  ai_provider?: string;
+  ai_model?: string;
+  ai_base_url?: string;
+  ai_api_key?: string;
+  verify_token?: string;
+  meta_api_version?: string;
+  meta_access_token?: string;
+  meta_phone_number_id?: string;
+  meta_page_access_token?: string;
+  telegram_bot_token?: string;
+  crm_webhook_url?: string;
+  sheets_webhook_url?: string;
+  database_url?: string;
+}): Promise<ReturnType<typeof getSettings>> {
+  const response = await fetch(`${API_BASE}/admin/settings`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to update settings");
+  }
+  return (await response.json()) as ReturnType<typeof getSettings>;
+}

@@ -52,3 +52,33 @@ class AnalyticsResponse(BaseModel):
     last_24h: int
     total_conversations: int
     total_leads: int
+
+class SettingsView(BaseModel):
+    ai_provider: str
+    ai_model: str
+    ai_base_url: Optional[str]
+    has_ai_api_key: bool
+    verify_token_set: bool
+    meta_api_version: str
+    meta_phone_number_id: Optional[str]
+    meta_page_access_token_set: bool
+    meta_access_token_set: bool
+    telegram_bot_token_set: bool
+    crm_webhook_url: Optional[str]
+    sheets_webhook_url: Optional[str]
+    database_url: Optional[str]
+
+class SettingsUpdate(BaseModel):
+    ai_provider: Optional[str] = None
+    ai_model: Optional[str] = None
+    ai_base_url: Optional[str] = None
+    ai_api_key: Optional[str] = None
+    verify_token: Optional[str] = None
+    meta_api_version: Optional[str] = None
+    meta_access_token: Optional[str] = None
+    meta_phone_number_id: Optional[str] = None
+    meta_page_access_token: Optional[str] = None
+    telegram_bot_token: Optional[str] = None
+    crm_webhook_url: Optional[str] = None
+    sheets_webhook_url: Optional[str] = None
+    database_url: Optional[str] = None
