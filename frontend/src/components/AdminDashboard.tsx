@@ -82,6 +82,27 @@ type AdminSection =
   | "reports"
   | "testing";
 
+const SECTION_META: Record<AdminSection, { title: string; description: string }> = {
+  dashboard: { title: "Dashboard", description: "Monitor conversations, leads, and channel performance in real time." },
+  conversations: { title: "Conversations", description: "View, manage, and reply to customer conversations across all channels." },
+  leads: { title: "Leads", description: "Track captured leads, score them, and export data for your CRM." },
+  channels: { title: "Channels", description: "See which messaging platforms are connected and active." },
+  settings: { title: "Settings", description: "Configure AI providers, messaging platforms, CRM webhooks, and email." },
+  email: { title: "Email", description: "Generate AI-powered email replies to customer inquiries." },
+  knowledge: { title: "Knowledge Base", description: "Upload documents and search your AI knowledge base." },
+  bot: { title: "Bot Builder", description: "Configure bot personality, manage flows, and customize behavior." },
+  workflows: { title: "Workflows", description: "Create keyword-triggered automation rules for your chatbot." },
+  intelligence: { title: "Intelligence", description: "Analyze messages for intent, entities, and sentiment insights." },
+  campaigns: { title: "Campaigns", description: "Broadcast messages and run abandoned-conversation recovery campaigns." },
+  reports: { title: "Reports", description: "Export leads and message data as CSV reports." },
+  testing: { title: "Testing", description: "Simulate conversations and A/B test prompt variations." },
+};
+
+const INPUT_CLASS = "w-full px-4 py-2.5 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 transition-all";
+const BTN_PRIMARY = "px-4 py-2.5 rounded-xl border border-emerald-500/60 bg-emerald-500/10 text-emerald-200 text-sm font-semibold hover:bg-emerald-500/20 active:scale-[0.98] transition-all";
+const BTN_SECONDARY = "px-4 py-2.5 rounded-xl border border-slate-700/80 bg-slate-900/70 text-sm font-semibold text-slate-200 hover:border-slate-600 hover:text-white active:scale-[0.98] transition-all";
+const CARD_CLASS = "rounded-2xl border border-slate-800/80 bg-slate-950/70 p-5 shadow-lg";
+
 export default function AdminDashboard({
   activeSection,
   onQuickAction,
@@ -151,12 +172,12 @@ export default function AdminDashboard({
   const [intelligenceInput, setIntelligenceInput] = useState("");
   const [intelligenceResult, setIntelligenceResult] = useState<
     | {
-        intent: string;
-        confidence: number;
-        entities: Record<string, string[]>;
-        summary: string;
-        suggested_responses: string[];
-      }
+      intent: string;
+      confidence: number;
+      entities: Record<string, string[]>;
+      summary: string;
+      suggested_responses: string[];
+    }
     | null
   >(null);
   const [flows, setFlows] = useState<
@@ -508,36 +529,43 @@ export default function AdminDashboard({
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 6);
 
+  const meta = SECTION_META[activeSection];
+
   return (
-    <div className="w-full rounded-3xl border border-slate-800/80 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.65)]">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+    <div className="w-full space-y-6">
+      {/* Page header */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200">
-            Admin Console
-          </div>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight">Dashboard</h2>
-          <p className="text-slate-400">Monitor conversations, leads, and channel performance in real time.</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 mb-1">Admin / {meta.title}</p>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-50">{meta.title}</h2>
+          <p className="mt-1 text-sm text-slate-400">{meta.description}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
             <input
               value={globalSearch}
               onChange={(event) => setGlobalSearch(event.target.value)}
-              placeholder="Search across dashboard..."
-              className="w-64 max-w-full px-4 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-slate-100"
+              placeholder="Search…"
+              className="w-56 max-w-full pl-9 pr-4 py-2 rounded-xl border border-slate-700/80 bg-slate-950/70 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 transition-all"
             />
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-900/70 px-3 py-1 text-xs text-slate-300">
-            Alerts
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-800 text-[11px] text-slate-200">
-              {error ? "1" : "0"}
+          {error && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-500/10 px-3 py-1 text-xs font-medium text-rose-300">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+              1 Alert
             </span>
-          </span>
+          )}
           <button
-            className="px-4 py-2 rounded-xl border border-slate-700/80 bg-slate-900/80 text-slate-100 font-semibold hover:border-slate-500 hover:text-white transition disabled:opacity-50"
+            className={`${BTN_SECONDARY} flex items-center gap-2 disabled:opacity-50`}
             disabled={loading}
             onClick={load}
           >
+            <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
             {loading ? "Refreshing…" : "Refresh"}
           </button>
         </div>
@@ -556,11 +584,10 @@ export default function AdminDashboard({
                 <button
                   key={range.key}
                   onClick={() => setTimeRange(range.key)}
-                  className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition ${
-                    timeRange === range.key
-                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700/80 text-slate-300 bg-slate-900/70"
-                  }`}
+                  className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition ${timeRange === range.key
+                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                    : "border-slate-700/80 text-slate-300 bg-slate-900/70"
+                    }`}
                 >
                   {range.label}
                 </button>
@@ -780,13 +807,17 @@ export default function AdminDashboard({
       )}
 
       {error && (
-        <div className="mt-4 rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-rose-200">
-          {error}
+        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-rose-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+          <p className="flex-1 text-sm text-rose-200">{error}</p>
+          <button onClick={() => setError(null)} className="text-rose-400 hover:text-rose-200 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
         </div>
       )}
 
       {activeSection === "conversations" && (
-        <div className="mt-8" id="conversations">
+        <div id="conversations">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Recent Conversations</h3>
           </div>
@@ -827,11 +858,10 @@ export default function AdminDashboard({
                   <button
                     key={conv.id}
                     onClick={() => setSelectedConversation(conv)}
-                    className={`text-left p-4 rounded-2xl border transition shadow-sm hover:shadow-lg ${
-                      selectedConversation?.id === conv.id
-                        ? "border-emerald-500/80 bg-emerald-500/10"
-                        : "border-slate-800/80 bg-slate-950/70 hover:border-slate-700"
-                    }`}
+                    className={`text-left p-4 rounded-2xl border transition shadow-sm hover:shadow-lg ${selectedConversation?.id === conv.id
+                      ? "border-emerald-500/80 bg-emerald-500/10"
+                      : "border-slate-800/80 bg-slate-950/70 hover:border-slate-700"
+                      }`}
                   >
                     <div className="flex items-center gap-3 text-sm text-slate-300">
                       <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
@@ -874,11 +904,10 @@ export default function AdminDashboard({
                 <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-slate-300">
                   <button
                     onClick={() => selectedConversation && handleToggleHandoff(selectedConversation)}
-                    className={`px-3 py-1.5 rounded-full border font-semibold transition ${
-                      selectedConversation?.handoff_enabled
-                        ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                        : "border-slate-700/80 text-slate-300 bg-slate-900/70"
-                    }`}
+                    className={`px-3 py-1.5 rounded-full border font-semibold transition ${selectedConversation?.handoff_enabled
+                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                      : "border-slate-700/80 text-slate-300 bg-slate-900/70"
+                      }`}
                   >
                     {selectedConversation?.handoff_enabled ? "Agent takeover: ON" : "Agent takeover: OFF"}
                   </button>
@@ -979,7 +1008,7 @@ export default function AdminDashboard({
       )}
 
       {activeSection === "leads" && (
-        <div className="mt-8" id="leads">
+        <div id="leads">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Recent Leads</h3>
             <div className="flex flex-wrap gap-2">
@@ -1066,7 +1095,7 @@ export default function AdminDashboard({
       )}
 
       {activeSection === "settings" && (
-        <div className="mt-8">
+        <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Settings</h3>
           </div>
@@ -1074,51 +1103,46 @@ export default function AdminDashboard({
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-6">
               <div className="flex flex-wrap gap-2">
                 <button
-                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
-                    settingsSection === "ai"
-                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700/80 text-slate-200 bg-slate-900/70"
-                  }`}
+                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "ai"
+                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                    : "border-slate-700/80 text-slate-200 bg-slate-900/70"
+                    }`}
                   onClick={() => setSettingsSection((prev) => (prev === "ai" ? null : "ai"))}
                 >
                   AI Provider
                 </button>
                 <button
-                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
-                    settingsSection === "messaging"
-                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700/80 text-slate-200 bg-slate-900/70"
-                  }`}
+                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "messaging"
+                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                    : "border-slate-700/80 text-slate-200 bg-slate-900/70"
+                    }`}
                   onClick={() => setSettingsSection((prev) => (prev === "messaging" ? null : "messaging"))}
                 >
                   Messaging Platforms
                 </button>
                 <button
-                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
-                    settingsSection === "crm"
-                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700/80 text-slate-200 bg-slate-900/70"
-                  }`}
+                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "crm"
+                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                    : "border-slate-700/80 text-slate-200 bg-slate-900/70"
+                    }`}
                   onClick={() => setSettingsSection((prev) => (prev === "crm" ? null : "crm"))}
                 >
                   CRM & Sheets
                 </button>
                 <button
-                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
-                    settingsSection === "database"
-                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700/80 text-slate-200 bg-slate-900/70"
-                  }`}
+                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "database"
+                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                    : "border-slate-700/80 text-slate-200 bg-slate-900/70"
+                    }`}
                   onClick={() => setSettingsSection((prev) => (prev === "database" ? null : "database"))}
                 >
                   Database
                 </button>
                 <button
-                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${
-                    settingsSection === "smtp"
-                      ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-700/80 text-slate-200 bg-slate-900/70"
-                  }`}
+                  className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "smtp"
+                    ? "border-emerald-400 text-emerald-200 bg-emerald-500/10"
+                    : "border-slate-700/80 text-slate-200 bg-slate-900/70"
+                    }`}
                   onClick={() => setSettingsSection((prev) => (prev === "smtp" ? null : "smtp"))}
                 >
                   SMTP Email
@@ -1359,7 +1383,7 @@ export default function AdminDashboard({
       )}
 
       {activeSection === "email" && (
-        <div className="mt-8">
+        <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Email Reply</h3>
           </div>
@@ -1408,7 +1432,7 @@ export default function AdminDashboard({
       )}
 
       {activeSection === "knowledge" && (
-        <div className="mt-8">
+        <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Knowledge Base</h3>
           </div>
@@ -1473,7 +1497,7 @@ export default function AdminDashboard({
       )}
 
       {activeSection === "intelligence" && (
-        <div className="mt-8">
+        <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Conversation Intelligence</h3>
           </div>
@@ -1544,7 +1568,7 @@ export default function AdminDashboard({
       )}
 
       {activeSection === "campaigns" && (
-        <div className="mt-8">
+        <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Proactive Campaigns</h3>
           </div>
@@ -1612,7 +1636,7 @@ export default function AdminDashboard({
       )}
 
       {activeSection === "bot" && (
-        <div className="mt-8">
+        <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Bot Personality</h3>
           </div>
@@ -1703,7 +1727,7 @@ export default function AdminDashboard({
       )}
 
       {activeSection === "workflows" && (
-        <div className="mt-8">
+        <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Automation Workflows</h3>
           </div>
@@ -1759,7 +1783,7 @@ export default function AdminDashboard({
       )}
 
       {activeSection === "reports" && (
-        <div className="mt-8">
+        <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Reports & Export</h3>
           </div>
@@ -1784,7 +1808,7 @@ export default function AdminDashboard({
       )}
 
       {activeSection === "testing" && (
-        <div className="mt-8">
+        <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Chatbot Testing</h3>
           </div>

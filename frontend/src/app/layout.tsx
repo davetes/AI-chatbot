@@ -9,20 +9,28 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif" }}>
         <div className="min-h-screen flex flex-col">
-          <header className="flex items-center justify-between px-8 py-5 bg-slate-900/80 border-b border-slate-800">
-            <h1 className="text-lg font-semibold">AI Multi-Channel Chatbot</h1>
+          <header className="flex items-center justify-between px-8 py-4 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-20">
+            <h1 className="text-base font-bold tracking-tight">AI Multi-Channel Chatbot</h1>
             <nav className="flex gap-4">
-              <a className="text-slate-100 font-semibold hover:text-white" href="/">
+              <a className="text-sm text-slate-300 font-medium hover:text-white transition" href="/">
                 Chat
               </a>
-              <a className="text-slate-100 font-semibold hover:text-white" href="/admin">
+              <a className="text-sm text-slate-300 font-medium hover:text-white transition" href="/admin">
                 Admin
               </a>
             </nav>
           </header>
-          <main className="flex-1 grid place-items-center px-8 py-8">{children}</main>
+          <main className="flex-1">{children}</main>
         </div>
       </body>
     </html>
