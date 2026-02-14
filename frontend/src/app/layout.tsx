@@ -25,10 +25,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <h1 className="text-base font-bold tracking-tight text-slate-900 dark:text-slate-100">AI Multi-Channel Chatbot</h1>
               <div className="flex items-center gap-5">
                 <nav className="flex gap-4">
-                  <a className="text-sm text-slate-600 dark:text-slate-300 font-medium hover:text-slate-900 dark:hover:text-white transition" href="/">
-                    Chat
+                  <a className="text-sm text-slate-600 dark:text-slate-300 font-medium hover:text-slate-900 dark:hover:text-white transition" href="">
+                    profile
                   </a>
-                  <a className="text-sm text-slate-600 dark:text-slate-300 font-medium hover:text-slate-900 dark:hover:text-white transition" href="/admin">
+                  <a className="text-sm text-slate-600 dark:text-slate-300 font-medium hover:text-slate-900 dark:hover:text-white transition" href="/">
                     Admin
                   </a>
                 </nav>

@@ -536,7 +536,6 @@ export default function AdminDashboard({
       {/* Page header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 mb-1">Admin / {meta.title}</p>
           <h2 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-50">{meta.title}</h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{meta.description}</p>
         </div>
@@ -614,18 +613,34 @@ export default function AdminDashboard({
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {[
               { label: "Total Messages", value: analytics?.total_messages ?? "0", accent: "from-emerald-500/15" },
-              { label: "Total Conversations", value: analytics?.total_conversations ?? "0", accent: "from-sky-500/15" },
+              {
+                label: "Total Conversations",
+                value: analytics?.total_conversations ?? "0",
+                accent: "from-sky-500/15",
+                onClick: () => onQuickAction?.("conversations"),
+              },
               { label: "Total Leads", value: analytics?.total_leads ?? "0", accent: "from-violet-500/15" },
               { label: "Last 24h", value: analytics?.last_24h ?? "0", accent: "from-amber-500/15" },
             ].map((card) => (
-              <div
-                key={card.label}
-                className={`rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-gradient-to-br ${card.accent} to-transparent p-4 shadow-lg`}
-              >
-                <p className="text-sm text-slate-500 dark:text-slate-400">{card.label}</p>
-                <p className="text-3xl font-semibold mt-2">{loading ? "..." : card.value}</p>
-                <p className="mt-2 text-xs text-slate-500">vs. previous period · —</p>
-              </div>
+              card.onClick ? (
+                <button
+                  type="button"
+                  key={card.label}
+                  onClick={card.onClick}
+                  className={`rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-gradient-to-br ${card.accent} to-transparent p-4 shadow-lg text-left hover:border-slate-400 dark:hover:border-slate-600 transition`}
+                >
+                  <p className="text-sm text-slate-500 dark:text-slate-400">{card.label}</p>
+                  <p className="text-3xl font-semibold mt-2">{loading ? "..." : card.value}</p>
+                </button>
+              ) : (
+                <div
+                  key={card.label}
+                  className={`rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-gradient-to-br ${card.accent} to-transparent p-4 shadow-lg`}
+                >
+                  <p className="text-sm text-slate-500 dark:text-slate-400">{card.label}</p>
+                  <p className="text-3xl font-semibold mt-2">{loading ? "..." : card.value}</p>
+                </div>
+              )
             ))}
           </div>
 
