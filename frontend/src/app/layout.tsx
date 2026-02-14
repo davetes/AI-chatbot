@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { ReactNode } from "react";
 import { ThemeProvider, ThemeToggle } from "../components/ThemeProvider";
+import AppHeader from "../components/AppHeader";
 
 export const metadata = {
   title: "AI Multi-Channel Chatbot",
@@ -21,26 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="h-full overflow-hidden" style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif" }}>
         <ThemeProvider>
           <div className="h-full flex flex-col bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-300">
-            <header className="flex-shrink-0 flex items-center justify-between px-8 py-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 z-20 transition-colors duration-300">
-              <h1 className="text-base font-bold tracking-tight text-slate-900 dark:text-slate-100">AI Multi-Channel Chatbot</h1>
-              <div className="flex items-center gap-5">
-                <nav className="flex gap-4">
-                  <a className="text-sm text-slate-600 dark:text-slate-300 font-medium hover:text-slate-900 dark:hover:text-white transition" href="/profile">
-                    profile
-                  </a>
-                  <a className="text-sm text-slate-600 dark:text-slate-300 font-medium hover:text-slate-900 dark:hover:text-white transition" href="/login">
-                    Login
-                  </a>
-                  <a className="text-sm text-slate-600 dark:text-slate-300 font-medium hover:text-slate-900 dark:hover:text-white transition" href="/logout">
-                    Logout
-                  </a>
-                  <a className="text-sm text-slate-600 dark:text-slate-300 font-medium hover:text-slate-900 dark:hover:text-white transition" href="/">
-                    Admin
-                  </a>
-                </nav>
-                <ThemeToggle />
-              </div>
-            </header>
+            <AppHeader />
             <main className="flex-1 overflow-hidden">{children}</main>
           </div>
         </ThemeProvider>

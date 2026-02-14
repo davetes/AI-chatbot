@@ -32,6 +32,7 @@ export default function LoginPage() {
     <div className="h-full w-full flex items-center justify-center bg-slate-50 dark:bg-slate-900/50 p-6">
       <div className="w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl p-6">
         <div className="mb-6">
+          <p className="  text-sm font-bold tracking-tight text-slate-900 dark:text-slate-100">AI Multi-Channel Chatbot</p>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{mode === "login" ? "Login" : "Create account"}</h2>
           <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Use your email and password.</p>
         </div>

@@ -61,6 +61,10 @@ export async function me(): Promise<{ id: number; email: string; created_at: str
   const res = await fetch(`${API_BASE}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  if (res.status === 401) {
+    clearToken();
+    throw new Error("Not logged in");
+  }
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data?.detail ?? "Failed to load profile");

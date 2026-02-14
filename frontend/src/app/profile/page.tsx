@@ -11,27 +11,15 @@ export default function ProfilePage() {
     me()
       .then((p) => setProfile(p))
       .catch((e) => {
-        setError(e instanceof Error ? e.message : "Failed to load");
+        const msg = e instanceof Error ? e.message : "Failed to load";
+        setError(msg);
+        window.location.href = "/login";
       });
   }, []);
 
   async function onLogout() {
     await logout();
     window.location.href = "/login";
-  }
-
-  if (error) {
-    return (
-      <div className="h-full w-full flex items-center justify-center p-6">
-        <div className="max-w-md w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Not logged in</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-300 mt-2">{error}</p>
-          <a className="inline-block mt-4 text-emerald-700 dark:text-emerald-400 font-semibold hover:underline" href="/login">
-            Go to login
-          </a>
-        </div>
-      </div>
-    );
   }
 
   return (
