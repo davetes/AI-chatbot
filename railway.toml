@@ -15,6 +15,7 @@ restartPolicyMaxRetries = 10
 [services.variables]
 PORT = "8000"
 HOST = "0.0.0.0"
+NIXPACKS_PKGS = "tesseract"
 
 [[services]]
 name = "frontend"

@@ -73,8 +73,11 @@ def _extract_text(file_path: str, filename: str) -> str:
             import pytesseract
         except ImportError as exc:  # pragma: no cover
             raise RuntimeError("Image OCR requires pytesseract and tesseract.") from exc
-        with Image.open(file_path) as image:
-            return pytesseract.image_to_string(image)
+        try:
+            with Image.open(file_path) as image:
+                return pytesseract.image_to_string(image)
+        except Exception as exc:  # pragma: no cover
+            raise RuntimeError("Tesseract OCR is not available. Install tesseract and ensure it is on PATH.") from exc
     with open(file_path, "r", encoding="utf-8", errors="ignore") as handle:
         return handle.read()
 
