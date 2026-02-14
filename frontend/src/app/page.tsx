@@ -25,9 +25,11 @@ const NAV_GROUPS: Array<{
     label: string;
     icon: string;
     shortcut?: string;
+    badge?: string;
   }>;
 }> = [
     {
+      label: "Overview",
       items: [
         {
           key: "dashboard",
@@ -47,17 +49,16 @@ const NAV_GROUPS: Array<{
           icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z",
           shortcut: "3",
         },
+      ],
+    },
+    {
+      label: "Channels",
+      items: [
         {
           key: "channels",
-          label: "Channels",
+          label: "All Channels",
           icon: "M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1",
           shortcut: "4",
-        },
-        {
-          key: "settings",
-          label: "Settings",
-          icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
-          shortcut: "5",
         },
         {
           key: "email",
@@ -101,7 +102,7 @@ const NAV_GROUPS: Array<{
       ],
     },
     {
-      label: "Reports & Testing",
+      label: "Analytics",
       items: [
         {
           key: "reports",
@@ -116,11 +117,23 @@ const NAV_GROUPS: Array<{
         },
       ],
     },
+    {
+      label: "System",
+      items: [
+        {
+          key: "settings",
+          label: "Settings",
+          icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
+          shortcut: "5",
+        },
+      ],
+    },
   ];
 
 export default function AdminPage() {
   const [activeSection, setActiveSection] = useState<AdminSection>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -140,10 +153,10 @@ export default function AdminPage() {
   }, []);
 
   return (
-    <section className="w-full grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-0 h-[calc(100vh-120px)]">
+    <section className="w-full h-screen overflow-hidden flex">
       {/* Mobile sidebar toggle */}
       <button
-        className="lg:hidden fixed bottom-5 right-5 z-50 p-3 rounded-full bg-emerald-600 text-white shadow-xl hover:bg-emerald-500 transition"
+        className="lg:hidden fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 active:scale-95 transition-all duration-200"
         onClick={() => setSidebarOpen(!sidebarOpen)}
         aria-label="Toggle sidebar"
       >
@@ -159,101 +172,168 @@ export default function AdminPage() {
       {/* Sidebar */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-40 w-[260px]
-          bg-white dark:bg-slate-950/95 backdrop-blur-xl
-          border-r border-slate-200 dark:border-slate-800/80
-          transform transition-all duration-300 ease-in-out
-          lg:static lg:transform-none lg:h-full lg:sticky lg:top-[72px]
+          fixed inset-y-0 left-0 z-40
+          ${sidebarCollapsed ? 'w-[72px]' : 'w-[280px]'}
+          bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950
+          border-r border-slate-800/50
+          transform transition-all duration-300 ease-out
+          lg:relative lg:transform-none flex-shrink-0
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="flex flex-col h-full overflow-y-auto px-4 py-6 scrollbar-thin">
-          {/* Logo area */}
-          <div className="flex items-center gap-3 px-3 mb-6">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/20">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        <div className="flex flex-col h-full overflow-hidden">
+          {/* Header */}
+          <div className={`flex items-center ${sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-5'} py-5 border-b border-slate-800/50`}>
+            {!sidebarCollapsed && (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/25">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white tracking-tight">ChatBot</h3>
+                  <p className="text-[11px] text-slate-500">Admin Panel</p>
+                </div>
+              </div>
+            )}
+            {sidebarCollapsed && (
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/25">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+            )}
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className={`hidden lg:flex items-center justify-center w-8 h-8 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all ${sidebarCollapsed ? 'absolute -right-3 top-6 bg-slate-800 border border-slate-700 shadow-lg' : ''}`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
               </svg>
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-tight">Admin Panel</h3>
-              <p className="text-[11px] text-slate-400 dark:text-slate-500">AI Chatbot Manager</p>
-            </div>
+            </button>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 flex flex-col gap-1">
+          <nav className="flex-1 overflow-y-auto py-4 px-3 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
             {NAV_GROUPS.map((group, gi) => (
-              <div key={gi}>
-                {group.label && (
-                  <div className="mt-6 mb-2 px-3">
-                    <p className="text-[10px] uppercase tracking-[0.16em] font-semibold text-slate-400 dark:text-slate-500">
+              <div key={gi} className="mb-6">
+                {group.label && !sidebarCollapsed && (
+                  <div className="px-3 mb-3">
+                    <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-slate-500">
                       {group.label}
                     </p>
                   </div>
                 )}
-                {group.items.map((item) => {
-                  const isActive = activeSection === item.key;
-                  return (
-                    <button
-                      key={item.key}
-                      className={`
-                        group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-[13px] font-medium
-                        transition-all duration-200 ease-out
-                        ${isActive
-                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 shadow-sm"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
-                        }
-                      `}
-                      onClick={() => {
-                        setActiveSection(item.key);
-                        setSidebarOpen(false);
-                      }}
-                    >
-                      {/* Active indicator bar */}
-                      {isActive && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-emerald-400" />
-                      )}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className={`h-[18px] w-[18px] flex-shrink-0 transition-colors ${isActive ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300"
-                          }`}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={1.8}
+                {sidebarCollapsed && gi > 0 && (
+                  <div className="mx-3 mb-3 border-t border-slate-800/50" />
+                )}
+                <div className="space-y-1">
+                  {group.items.map((item) => {
+                    const isActive = activeSection === item.key;
+                    return (
+                      <button
+                        key={item.key}
+                        title={sidebarCollapsed ? item.label : undefined}
+                        className={`
+                          group relative w-full flex items-center ${sidebarCollapsed ? 'justify-center' : ''} gap-3 
+                          ${sidebarCollapsed ? 'px-3' : 'px-4'} py-3 rounded-xl text-left
+                          transition-all duration-200 ease-out
+                          ${isActive
+                            ? "bg-gradient-to-r from-emerald-500/20 to-teal-500/10 text-emerald-400 shadow-lg shadow-emerald-500/5"
+                            : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+                          }
+                        `}
+                        onClick={() => {
+                          setActiveSection(item.key);
+                          setSidebarOpen(false);
+                        }}
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-                      </svg>
-                      <span className="truncate">{item.label}</span>
-                      {item.shortcut && (
-                        <kbd className="ml-auto text-[10px] text-slate-400 dark:text-slate-600 bg-slate-100 dark:bg-slate-800/80 px-1.5 py-0.5 rounded font-mono">
-                          Alt+{item.shortcut}
-                        </kbd>
-                      )}
-                    </button>
-                  );
-                })}
+                        {/* Active indicator */}
+                        {isActive && (
+                          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full bg-gradient-to-b from-emerald-400 to-teal-500" />
+                        )}
+                        <div className={`
+                          flex items-center justify-center w-9 h-9 rounded-lg transition-all
+                          ${isActive 
+                            ? "bg-emerald-500/20 text-emerald-400" 
+                            : "bg-slate-800/50 text-slate-500 group-hover:bg-slate-700/50 group-hover:text-slate-300"
+                          }
+                        `}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={1.8}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                          </svg>
+                        </div>
+                        {!sidebarCollapsed && (
+                          <>
+                            <span className="flex-1 text-sm font-medium truncate">{item.label}</span>
+                            {item.shortcut && (
+                              <kbd className="text-[10px] text-slate-600 bg-slate-800/80 px-1.5 py-0.5 rounded font-mono opacity-0 group-hover:opacity-100 transition-opacity">
+                                ⌥{item.shortcut}
+                              </kbd>
+                            )}
+                            {item.badge && (
+                              <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-400">
+                                {item.badge}
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             ))}
           </nav>
 
-          
+          {/* Footer */}
+          {!sidebarCollapsed && (
+            <div className="p-4 border-t border-slate-800/50">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-slate-800/50 to-slate-800/30 border border-slate-700/50">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                    A
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-white truncate">Admin User</p>
+                    <p className="text-[11px] text-slate-500 truncate">admin@chatbot.com</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 rounded-full bg-slate-700/50 overflow-hidden">
+                    <div className="h-full w-3/4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500" />
+                  </div>
+                  <span className="text-[10px] text-slate-500">75%</span>
+                </div>
+                <p className="mt-2 text-[10px] text-slate-500">API Usage this month</p>
+              </div>
+            </div>
+          )}
         </div>
       </aside>
 
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main content */}
-      <div className="w-full px-6 py-6 overflow-y-auto bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
-        <AdminDashboard activeSection={activeSection} onQuickAction={setActiveSection} />
-      </div>
+      <main className="w-full min-h-full overflow-y-auto bg-slate-50 dark:bg-slate-900/50">
+        <div className="p-6 lg:p-8">
+          <AdminDashboard activeSection={activeSection} onQuickAction={setActiveSection} />
+        </div>
+      </main>
     </section>
   );
 }
