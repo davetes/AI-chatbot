@@ -25,6 +25,11 @@ class ProfileResponse(BaseModel):
     email: str
     created_at: datetime
 
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
 class ChatRequest(BaseModel):
     message: str
     user_id: Optional[str] = None

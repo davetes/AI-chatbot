@@ -4,7 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.config import settings
 from app.models.db import Account
-from app.models.schemas import LoginRequest, ProfileResponse, RegisterRequest, TokenResponse
+from app.models.schemas import (
+    ChangePasswordRequest,
+    LoginRequest,
+    ProfileResponse,
+    RegisterRequest,
+    TokenResponse,
+)
 from app.services.auth import (
     create_access_token,
     get_account_by_email,
@@ -61,3 +67,23 @@ async def me(account: Account = Depends(get_current_account)) -> Dict[str, Any]:
 async def logout() -> Dict[str, str]:
     # JWTs are stateless; logout is handled client-side by deleting the token.
     return {"status": "ok"}
+
+
+@router.patch("/password")
+async def change_password(
+    payload: ChangePasswordRequest,
+    account: Account = Depends(get_current_account),
+) -> Dict[str, str]:
+    if len(payload.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    if not verify_password(payload.current_password, account.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid password")
+
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session:
+        db_account = await session.get(Account, account.id)
+        if not db_account:
+            raise HTTPException(status_code=404, detail="Account not found")
+        db_account.password_hash = hash_password(payload.new_password)
+        await session.commit()
+        return {"status": "ok"}

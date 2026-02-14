@@ -28,6 +28,28 @@ export async function register(email: string, password: string): Promise<{ id: n
   return (await res.json()) as { id: number; email: string; created_at: string };
 }
 
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  const token = getToken();
+  if (!token) throw new Error("Not logged in");
+
+  const res = await fetch(`${API_BASE}/auth/password`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+  });
+  if (res.status === 401) {
+    clearToken();
+    throw new Error("Not logged in");
+  }
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data?.detail ?? "Failed to change password");
+  }
+}
+
 export async function login(email: string, password: string): Promise<string> {
   const res = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
