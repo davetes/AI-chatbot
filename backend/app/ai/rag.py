@@ -1,8 +1,11 @@
 import json
+import math
 import os
+import re
 import uuid
+from collections import Counter
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List
 
 from pypdf import PdfReader
 from docx import Document
@@ -92,11 +95,61 @@ def delete_document(doc_id: str) -> None:
     _save_index(index)
 
 
-def _score_chunk(query: str, text: str) -> int:
-    tokens = {token for token in query.lower().split() if len(token) > 2}
-    if not tokens:
-        return 0
-    return sum(token in text.lower() for token in tokens)
+_STOP_WORDS = {
+    "the",
+    "and",
+    "for",
+    "with",
+    "that",
+    "this",
+    "you",
+    "your",
+    "are",
+    "from",
+    "have",
+    "has",
+    "how",
+    "what",
+    "when",
+    "where",
+    "who",
+    "why",
+    "can",
+    "could",
+    "would",
+    "should",
+    "into",
+    "about",
+    "also",
+    "not",
+    "but",
+    "all",
+    "any",
+    "our",
+    "their",
+}
+
+
+def _tokenize(text: str) -> List[str]:
+    tokens = re.findall(r"[a-z0-9]+", text.lower())
+    return [token for token in tokens if len(token) > 2 and token not in _STOP_WORDS]
+
+
+def _score_chunk(query_tokens: List[str], text: str, idf: Dict[str, float]) -> float:
+    if not query_tokens:
+        return 0.0
+    text_tokens = _tokenize(text)
+    if not text_tokens:
+        return 0.0
+    tf = Counter(text_tokens)
+    score = 0.0
+    for token in query_tokens:
+        if token in tf:
+            score += tf[token] * idf.get(token, 1.0)
+    phrase = " ".join(query_tokens)
+    if phrase and phrase in text.lower():
+        score += 2.0
+    return score
 
 
 def retrieve_context(query: str) -> str:
@@ -104,12 +157,27 @@ def retrieve_context(query: str) -> str:
     chunks = index.get("chunks", [])
     if not chunks:
         return ""
+    query_tokens = _tokenize(query)
+    if not query_tokens:
+        return ""
+    total_chunks = len(chunks)
+    doc_freq: Dict[str, int] = {token: 0 for token in query_tokens}
+    for chunk in chunks:
+        chunk_tokens = set(_tokenize(chunk.get("text", "")))
+        for token in query_tokens:
+            if token in chunk_tokens:
+                doc_freq[token] += 1
+    idf = {token: math.log((total_chunks + 1) / (doc_freq[token] + 1)) + 1 for token in query_tokens}
     scored = sorted(
         chunks,
-        key=lambda chunk: _score_chunk(query, chunk.get("text", "")),
+        key=lambda chunk: _score_chunk(query_tokens, chunk.get("text", ""), idf),
         reverse=True,
     )
-    top = [chunk for chunk in scored if _score_chunk(query, chunk.get("text", "")) > 0][: settings.rag_top_k]
+    top = [
+        chunk
+        for chunk in scored
+        if _score_chunk(query_tokens, chunk.get("text", ""), idf) > 0
+    ][: settings.rag_top_k]
     if not top:
         return ""
     return "\n\n".join(chunk["text"] for chunk in top)
