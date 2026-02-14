@@ -856,23 +856,41 @@ export default function AdminDashboard({
                   <button
                     key={conv.id}
                     onClick={() => setSelectedConversation(conv)}
-                    className={`text-left p-4 rounded-2xl border transition shadow-sm hover:shadow-lg ${selectedConversation?.id === conv.id
-                      ? "border-emerald-500/80 bg-emerald-500/10"
-                      : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800/80 dark:bg-slate-950/70 dark:hover:border-slate-700"
-                      }`}
+                    className={`text-left w-full rounded-2xl border transition shadow-sm hover:shadow-md ${selectedConversation?.id === conv.id
+                      ? "border-emerald-500/70 bg-emerald-50"
+                      : "border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-800/80 dark:bg-slate-950/70 dark:hover:bg-slate-900/40"
+                      } dark:bg-opacity-100`}
                   >
-                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
-                      <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
-                        {conv.platform}
-                      </span>
-                      <span className="px-2 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold dark:bg-slate-800/80 dark:text-slate-300">
-                        Neutral
-                      </span>
-                      <span>{new Date(conv.created_at).toLocaleString()}</span>
-                    </div>
-                    <div className="mt-2 text-sm text-slate-700 dark:text-slate-200">
-                      <div className="truncate">User: {conv.user_external_id}</div>
-                      <div>Status: {conv.status}</div>
+                    <div className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 rounded-full border border-slate-200 bg-slate-100 flex items-center justify-center text-sm font-bold text-slate-700 dark:border-slate-800/70 dark:bg-slate-900/60 dark:text-slate-200">
+                          {(conv.user_external_id ?? "U").toString().slice(0, 1).toUpperCase()}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
+                              {conv.user_external_id}
+                            </p>
+                            <p className="whitespace-nowrap text-xs text-slate-400 dark:text-slate-500">
+                              {new Date(conv.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+
+                          <div className="mt-1 flex items-center justify-between gap-2">
+                            <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                              {conv.platform} · {conv.status}
+                            </p>
+                            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold border ${selectedConversation?.id === conv.id
+                              ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200"
+                              : "border-slate-200 bg-white text-slate-600 dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-300"
+                              }`}
+                            >
+                              Neutral
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </button>
                 ))}
@@ -900,16 +918,7 @@ export default function AdminDashboard({
               <div className="p-4 rounded-2xl bg-white border border-slate-200 min-h-[220px] shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
                 <h4 className="text-sm font-semibold mb-3">Conversation Detail</h4>
                 <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
-                  <button
-                    onClick={() => selectedConversation && handleToggleHandoff(selectedConversation)}
-                    className={`px-3 py-1.5 rounded-full border font-semibold transition ${selectedConversation?.handoff_enabled
-                      ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
-                      : "border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/70"
-                      }`}
-                  >
-                    {selectedConversation?.handoff_enabled ? "Agent takeover: ON" : "Agent takeover: OFF"}
-                  </button>
-                  <span className="text-slate-500">Live preview enabled</span>
+                 
                 </div>
                 {!selectedConversation && <p className="text-sm text-slate-500 dark:text-slate-400">Select a conversation to view messages.</p>}
                 {selectedConversation && (
