@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 from alembic import context
 from sqlalchemy import engine_from_config, pool
+from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -12,6 +13,8 @@ if str(ROOT) not in sys.path:
 from app.models.db import Base
 
 config = context.config
+
+load_dotenv()
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

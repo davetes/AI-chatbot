@@ -12,6 +12,7 @@ from app.routes.messenger import router as messenger_router
 from app.routes.telegram import router as telegram_router
 from app.routes.instagram import router as instagram_router
 from app.routes.admin import router as admin_router
+from app.routes.auth import router as auth_router
 from app.services.db import get_analytics, init_db
 
 app = FastAPI(title="AI Multi-Channel Chatbot", version="0.1.0")
@@ -54,6 +55,7 @@ app.include_router(messenger_router, prefix="/messenger", tags=["messenger"])
 app.include_router(telegram_router, prefix="/telegram", tags=["telegram"])
 app.include_router(instagram_router, prefix="/instagram", tags=["instagram"])
 app.include_router(admin_router, prefix="/admin", tags=["admin"])
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
 
 
 @app.websocket("/admin/ws/metrics")

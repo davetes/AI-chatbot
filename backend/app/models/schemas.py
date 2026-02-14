@@ -4,6 +4,27 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 from pydantic import ConfigDict
 
+
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
+class ProfileResponse(BaseModel):
+    id: int
+    email: str
+    created_at: datetime
+
 class ChatRequest(BaseModel):
     message: str
     user_id: Optional[str] = None

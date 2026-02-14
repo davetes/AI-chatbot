@@ -47,4 +47,7 @@ class Settings:
         self.smtp_from = os.getenv("SMTP_FROM", "")
         self.smtp_tls = os.getenv("SMTP_TLS", "true").lower() in {"1", "true", "yes"}
 
+        self.auth_jwt_secret = os.getenv("AUTH_JWT_SECRET", "")
+        self.auth_token_exp_minutes = int(os.getenv("AUTH_TOKEN_EXP_MINUTES", "43200"))
+
 settings = Settings()
