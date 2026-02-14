@@ -153,7 +153,7 @@ export default function AdminPage() {
   }, []);
 
   return (
-    <section className="w-full h-screen overflow-hidden flex">
+    <section className="w-full h-full overflow-hidden flex">
       {/* Mobile sidebar toggle */}
       <button
         className="lg:hidden fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 active:scale-95 transition-all duration-200"
@@ -329,7 +329,7 @@ export default function AdminPage() {
       )}
 
       {/* Main content */}
-      <main className="w-full min-h-full overflow-y-auto bg-slate-50 dark:bg-slate-900/50">
+      <main className="flex-1 h-full overflow-y-auto bg-slate-50 dark:bg-slate-900/50">
         <div className="p-6 lg:p-8">
           <AdminDashboard activeSection={activeSection} onQuickAction={setActiveSection} />
         </div>
