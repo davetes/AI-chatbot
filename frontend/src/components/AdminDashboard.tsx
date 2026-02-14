@@ -183,7 +183,10 @@ export default function AdminDashboard({
   const [flows, setFlows] = useState<
     Array<{ id: string; name: string; nodes: Array<{ id: string; type: string; label: string; next?: string }> }>
   >([]);
-  const [flowDraft, setFlowDraft] = useState({ name: "", nodesJson: "[]" });
+  const [flowDraft, setFlowDraft] = useState<{
+    name: string;
+    nodes: Array<{ id: string; type: string; label: string; next?: string }>;
+  }>({ name: "", nodes: [] });
   const [simulatorPrompt, setSimulatorPrompt] = useState("");
   const [simulatorTurns, setSimulatorTurns] = useState(3);
   const [simulatorTranscript, setSimulatorTranscript] = useState<Array<{ role: string; content: string }>>([]);
@@ -463,13 +466,52 @@ export default function AdminDashboard({
 
   const handleCreateFlow = async () => {
     try {
-      const nodes = JSON.parse(flowDraft.nodesJson) as Array<{ id: string; type: string; label: string; next?: string }>;
-      const flow = await createFlow({ name: flowDraft.name || "Untitled flow", nodes });
+      const cleanedNodes = flowDraft.nodes
+        .map((node) => ({
+          id: node.id?.trim() || crypto.randomUUID(),
+          type: node.type?.trim() || "message",
+          label: node.label?.trim() || "",
+          next: node.next?.trim() || undefined,
+        }))
+        .filter((node) => node.label && node.type);
+      if (cleanedNodes.length === 0) {
+        setError("Add at least one node before saving.");
+        return;
+      }
+      const flow = await createFlow({ name: flowDraft.name || "Untitled flow", nodes: cleanedNodes });
       setFlows((prev) => [...prev, flow]);
-      setFlowDraft({ name: "", nodesJson: "[]" });
+      setFlowDraft({ name: "", nodes: [] });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid flow JSON");
+      setError(err instanceof Error ? err.message : "Failed to create flow");
     }
+  };
+
+  const handleAddFlowNode = () => {
+    setFlowDraft((prev) => ({
+      ...prev,
+      nodes: [
+        ...prev.nodes,
+        { id: crypto.randomUUID(), type: "message", label: "", next: "" },
+      ],
+    }));
+  };
+
+  const handleUpdateFlowNode = (
+    index: number,
+    updates: Partial<{ id: string; type: string; label: string; next?: string }>
+  ) => {
+    setFlowDraft((prev) => {
+      const nodes = [...prev.nodes];
+      nodes[index] = { ...nodes[index], ...updates };
+      return { ...prev, nodes };
+    });
+  };
+
+  const handleRemoveFlowNode = (index: number) => {
+    setFlowDraft((prev) => ({
+      ...prev,
+      nodes: prev.nodes.filter((_, idx) => idx !== index),
+    }));
   };
 
   const handleDeleteFlow = async (flowId: string) => {
@@ -1637,19 +1679,69 @@ export default function AdminDashboard({
           </div>
           <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
-              <p className="text-sm text-slate-900 dark:text-slate-300 font-semibold">Flow Builder (JSON)</p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-slate-900 dark:text-slate-300 font-semibold">Flow Builder</p>
+                <button
+                  onClick={handleAddFlowNode}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-200"
+                >
+                  Add Node
+                </button>
+              </div>
               <input
                 value={flowDraft.name}
                 onChange={(event) => setFlowDraft({ ...flowDraft, name: event.target.value })}
                 className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Flow name"
               />
-              <textarea
-                value={flowDraft.nodesJson}
-                onChange={(event) => setFlowDraft({ ...flowDraft, nodesJson: event.target.value })}
-                className="w-full min-h-[140px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
-                placeholder='[{"id":"start","type":"message","label":"Welcome"}]'
-              />
+              {flowDraft.nodes.length === 0 && (
+                <p className="text-xs text-slate-400 dark:text-slate-500">Add a node to start building your flow.</p>
+              )}
+              <div className="space-y-3">
+                {flowDraft.nodes.map((node, index) => (
+                  <div key={node.id} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Node {index + 1}</p>
+                      <button
+                        onClick={() => handleRemoveFlowNode(index)}
+                        className="px-2 py-1 rounded-lg border border-rose-500/40 text-rose-700 text-xs font-semibold hover:bg-rose-50 dark:text-rose-200"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <input
+                        value={node.label}
+                        onChange={(event) => handleUpdateFlowNode(index, { label: event.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
+                        placeholder="Node text / label"
+                      />
+                      <select
+                        value={node.type}
+                        onChange={(event) => handleUpdateFlowNode(index, { type: event.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100"
+                      >
+                        <option value="message">Message</option>
+                        <option value="question">Question</option>
+                        <option value="action">Action</option>
+                        <option value="handoff">Handoff</option>
+                      </select>
+                      <input
+                        value={node.next ?? ""}
+                        onChange={(event) => handleUpdateFlowNode(index, { next: event.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
+                        placeholder="Next node ID (optional)"
+                      />
+                      <input
+                        value={node.id}
+                        onChange={(event) => handleUpdateFlowNode(index, { id: event.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
+                        placeholder="Node ID"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
               <button
                 onClick={handleCreateFlow}
                 className="px-4 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 hover:border-emerald-700 transition dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200"
