@@ -544,12 +544,7 @@ export default function AdminDashboard({
             <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input
-              value={globalSearch}
-              onChange={(event) => setGlobalSearch(event.target.value)}
-              placeholder="Search…"
-              className="w-56 max-w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/50 dark:bg-slate-800/50 dark:text-slate-100 dark:placeholder:text-slate-500"
-            />
+          
           </div>
           {error && (
             <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 text-xs font-medium text-rose-400">
@@ -595,6 +590,7 @@ export default function AdminDashboard({
                 value: analytics?.total_leads ?? 0, 
                 icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z",
                 color: "violet",
+                onClick: () => onQuickAction?.("leads"),
                 trend: "+24%"
               },
               { 
@@ -681,7 +677,12 @@ export default function AdminDashboard({
             <div className="xl:col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/70 dark:shadow-lg">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Recent Activity</h3>
-                <button className="text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition dark:text-emerald-300 dark:hover:text-emerald-200">View All</button>
+                <button
+                  onClick={() => onQuickAction?.("conversations")}
+                  className="text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition dark:text-emerald-300 dark:hover:text-emerald-200"
+                >
+                  View All
+                </button>
               </div>
               <div className="space-y-4">
                 {loading && <div className="text-sm text-slate-500">Loading…</div>}
@@ -755,7 +756,10 @@ export default function AdminDashboard({
                     <div key={name}>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-slate-700 capitalize dark:text-slate-300">{name}</span>
-                        <span className="text-sm font-bold text-slate-900 dark:text-white">{count}</span>
+                        {count === 1 ?
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">{count} user</span>:
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">{count} users</span>
+                        }
                       </div>
                       <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800">
                         <div
@@ -913,84 +917,30 @@ export default function AdminDashboard({
                     {conversationMessages.length === 0 && (
                       <p className="text-sm text-slate-500 dark:text-slate-400">No messages yet.</p>
                     )}
-                    {conversationMessages.map((msg) => (
-                      <div key={msg.id} className="flex flex-col gap-1 text-sm rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800/70 dark:bg-slate-900/60">
-                        <span className="text-slate-500 dark:text-slate-400">
-                          {msg.sender} · {new Date(msg.created_at).toLocaleString()}
-                        </span>
-                        <span className="text-slate-900 dark:text-slate-100">{msg.content}</span>
-                      </div>
-                    ))}
-                    <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800/70 dark:bg-slate-900/60">
-                      <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Tags</p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {(selectedConversation && conversationTags[selectedConversation.id] ? conversationTags[selectedConversation.id] : []).map(
-                          (tag) => (
-                            <span key={tag} className="px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 text-xs">
-                              {tag}
-                            </span>
-                          )
-                        )}
-                        {(!selectedConversation || (conversationTags[selectedConversation.id] ?? []).length === 0) && (
-                          <span className="text-xs text-slate-400 dark:text-slate-500">No tags yet.</span>
-                        )}
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <input
-                          value={tagDraft}
-                          onChange={(event) => setTagDraft(event.target.value)}
-                          className="flex-1 min-w-[160px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
-                          placeholder="Add a tag"
-                        />
-                        <button
-                          onClick={() => selectedConversation && addConversationTag(selectedConversation.id)}
-                          className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-200"
-                        >
-                          Add Tag
-                        </button>
-                      </div>
-                    </div>
-                    <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800/70 dark:bg-slate-900/60">
-                      <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Quick Replies</p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {[
-                          "Thanks for reaching out! How can we help today?",
-                          "Could you share your email so we can follow up?",
-                          "Here are the next steps to get started.",
-                        ].map((template) => (
-                          <button
-                            key={template}
-                            onClick={() => setReplyDraft(template)}
-                            className="px-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-200"
-                          >
-                            {template.slice(0, 28)}...
-                          </button>
-                        ))}
-                      </div>
-                      <textarea
-                        value={replyDraft}
-                        onChange={(event) => setReplyDraft(event.target.value)}
-                        className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all min-h-[90px] dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
-                        placeholder="Draft a reply..."
-                      />
-                      <div className="mt-2 flex items-center gap-2">
-                        <button
-                          onClick={async () => {
-                            if (!selectedConversation || !replyDraft.trim()) return;
-                            await sendAgentReply(selectedConversation.id, replyDraft.trim());
-                            setReplyDraft("");
-                          }}
-                          className="px-3 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 hover:border-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200"
-                        >
-                          Send Reply
-                        </button>
-                        <button
-                          onClick={() => navigator.clipboard.writeText(replyDraft)}
-                          className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-200"
-                        >
-                          Copy Reply
-                        </button>
-                        <span className="text-xs text-slate-400 dark:text-slate-500">Paste into your chat tool to send.</span>
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-sm dark:border-slate-800/70 dark:bg-slate-950/40 dark:shadow-lg">
+                      <div className="max-h-[360px] overflow-y-auto pr-1">
+                        <div className="flex flex-col gap-2">
+                          {conversationMessages.map((msg) => {
+                            const isUser = msg.sender.toLowerCase().includes("user") || msg.sender.toLowerCase().includes("customer");
+                            return (
+                              <div key={msg.id} className={`flex ${isUser ? "justify-start" : "justify-end"}`}>
+                                <div
+                                  className={`max-w-[86%] sm:max-w-[78%] rounded-2xl px-3 py-2 text-sm shadow-sm border ${isUser
+                                    ? "bg-white border-slate-200 text-slate-900 dark:bg-slate-900/60 dark:border-slate-800/70 dark:text-slate-100"
+                                    : "bg-emerald-600 border-emerald-600 text-white dark:bg-emerald-500/20 dark:border-emerald-500/30 dark:text-emerald-100"
+                                    }`}
+                                >
+                                  <div className="whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+                                  <div className={`mt-1 flex items-center justify-end gap-2 text-[11px] ${isUser ? "text-slate-400 dark:text-slate-500" : "text-white/80 dark:text-emerald-200/80"}`}>
+                                    <span>{msg.sender}</span>
+                                    <span>·</span>
+                                    <span>{new Date(msg.created_at).toLocaleTimeString()}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>
