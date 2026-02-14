@@ -64,6 +64,17 @@ def _extract_text(file_path: str, filename: str) -> str:
     if lower.endswith(".docx"):
         doc = Document(file_path)
         return "\n".join(paragraph.text for paragraph in doc.paragraphs)
+    if lower.endswith((".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff")):
+        try:
+            from PIL import Image
+        except ImportError as exc:  # pragma: no cover
+            raise RuntimeError("Image OCR requires pillow. Install pillow and tesseract.") from exc
+        try:
+            import pytesseract
+        except ImportError as exc:  # pragma: no cover
+            raise RuntimeError("Image OCR requires pytesseract and tesseract.") from exc
+        with Image.open(file_path) as image:
+            return pytesseract.image_to_string(image)
     with open(file_path, "r", encoding="utf-8", errors="ignore") as handle:
         return handle.read()
 

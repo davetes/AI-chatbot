@@ -249,7 +249,10 @@ async def upload_kb(file: UploadFile = File(...)) -> KnowledgeBaseDoc:
     file_path = os.path.join(settings.kb_path, file.filename)
     with open(file_path, "wb") as handle:
         handle.write(await file.read())
-    doc = ingest_document(file.filename, file_path)
+    try:
+        doc = ingest_document(file.filename, file_path)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return KnowledgeBaseDoc(**doc)
 
 

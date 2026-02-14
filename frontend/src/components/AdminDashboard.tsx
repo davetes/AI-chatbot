@@ -1392,7 +1392,7 @@ export default function AdminDashboard({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-4 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
               <div>
-                <label className="text-sm text-slate-500 dark:text-slate-400">Upload document (PDF/DOCX/TXT)</label>
+                <label className="text-sm text-slate-500 dark:text-slate-400">Upload document (PDF/DOCX/TXT/PNG/JPG)</label>
                 <input
                   type="file"
                   onChange={(event) => {
