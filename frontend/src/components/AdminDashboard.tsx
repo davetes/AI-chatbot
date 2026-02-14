@@ -532,12 +532,12 @@ export default function AdminDashboard({
   const meta = SECTION_META[activeSection];
 
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full space-y-8 rounded-3xl bg-white text-slate-900 p-6 md:p-8 border border-slate-200 shadow-sm dark:bg-slate-950/40 dark:text-slate-100 dark:border-slate-800/80">
       {/* Page header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-800/50">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800/80">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">{meta.title}</h2>
-          <p className="mt-1 text-sm text-slate-500">{meta.description}</p>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{meta.title}</h2>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-500">{meta.description}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
@@ -548,7 +548,7 @@ export default function AdminDashboard({
               value={globalSearch}
               onChange={(event) => setGlobalSearch(event.target.value)}
               placeholder="Search…"
-              className="w-56 max-w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-700/50 bg-slate-800/50 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all"
+              className="w-56 max-w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/50 dark:bg-slate-800/50 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </div>
           {error && (
@@ -558,7 +558,7 @@ export default function AdminDashboard({
             </span>
           )}
           <button
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-sm font-medium text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 disabled:opacity-50 transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white border border-emerald-600 text-sm font-semibold hover:bg-emerald-700 hover:border-emerald-700 disabled:opacity-50 transition-all dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-200 dark:hover:bg-emerald-500/20 dark:hover:border-emerald-500/50"
             disabled={loading}
             onClick={load}
           >
@@ -617,13 +617,13 @@ export default function AdminDashboard({
                 <button
                   key={card.label}
                   onClick={card.onClick}
-                  className={`relative overflow-hidden rounded-2xl border ${colorClasses.border} ${colorClasses.bg} p-5 transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer text-left`}
+                  className={`relative overflow-hidden rounded-2xl border ${colorClasses.border} ${colorClasses.bg} p-5 transition-all hover:shadow-md cursor-pointer text-left`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-400">{card.label}</p>
-                      <p className="mt-2 text-3xl font-bold text-white">{loading ? "..." : card.value.toLocaleString()}</p>
-                      <p className={`mt-1 text-xs font-medium ${colorClasses.trend}`}>{card.trend} from last week</p>
+                      <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{card.label}</p>
+                      <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{loading ? "..." : card.value.toLocaleString()}</p>
+                      <p className={`mt-1 text-xs font-semibold ${colorClasses.trend}`}>{card.trend} from last week</p>
                     </div>
                     <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${colorClasses.icon}`}>
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -635,13 +635,13 @@ export default function AdminDashboard({
               ) : (
                 <div
                   key={card.label}
-                  className={`relative overflow-hidden rounded-2xl border ${colorClasses.border} ${colorClasses.bg} p-5 transition-all hover:scale-[1.02] hover:shadow-lg`}
+                  className={`relative overflow-hidden rounded-2xl border ${colorClasses.border} ${colorClasses.bg} p-5 transition-all hover:shadow-md`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-400">{card.label}</p>
-                      <p className="mt-2 text-3xl font-bold text-white">{loading ? "..." : card.value.toLocaleString()}</p>
-                      <p className={`mt-1 text-xs font-medium ${colorClasses.trend}`}>{card.trend} from last week</p>
+                      <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{card.label}</p>
+                      <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{loading ? "..." : card.value.toLocaleString()}</p>
+                      <p className={`mt-1 text-xs font-semibold ${colorClasses.trend}`}>{card.trend} from last week</p>
                     </div>
                     <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${colorClasses.icon}`}>
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -656,7 +656,7 @@ export default function AdminDashboard({
 
           {/* Quick Actions */}
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm font-medium text-slate-500">Quick Actions:</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-400">Quick Actions:</span>
             {[
               { label: "View Conversations", section: "conversations" as const, icon: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" },
               { label: "Review Leads", section: "leads" as const, icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" },
@@ -665,7 +665,7 @@ export default function AdminDashboard({
               <button
                 key={action.section}
                 onClick={() => onQuickAction?.(action.section)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700/50 text-sm font-medium text-slate-300 hover:bg-slate-700/50 hover:text-white hover:border-slate-600 transition-all"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.99] transition-all dark:bg-slate-800/50 dark:border-slate-700/50 dark:text-slate-200 dark:hover:bg-slate-700/50 dark:hover:text-white dark:hover:border-slate-600"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d={action.icon} />
@@ -678,45 +678,45 @@ export default function AdminDashboard({
           {/* Main Grid */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             {/* Recent Activity */}
-            <div className="xl:col-span-2 rounded-2xl border border-slate-800/50 bg-slate-900/50 p-6">
+            <div className="xl:col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/70 dark:shadow-lg">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
-                <button className="text-sm text-emerald-400 hover:text-emerald-300 transition">View All</button>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Recent Activity</h3>
+                <button className="text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition dark:text-emerald-300 dark:hover:text-emerald-200">View All</button>
               </div>
               <div className="space-y-4">
                 {loading && <div className="text-sm text-slate-500">Loading…</div>}
                 {!loading && activityItems.length === 0 && (
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-slate-800/50 flex items-center justify-center mb-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <div className="w-16 h-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center mb-4 dark:bg-slate-800/50">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-400 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                       </svg>
                     </div>
-                    <p className="text-slate-500">No activity yet</p>
-                    <p className="text-sm text-slate-600 mt-1">Start a conversation to see activity here</p>
+                    <p className="text-slate-600 dark:text-slate-500">No activity yet</p>
+                    <p className="text-sm text-slate-500 mt-1 dark:text-slate-600">Start a conversation to see activity here</p>
                   </div>
                 )}
                 {!loading &&
                   activityItems.map((item, index) => (
-                    <div key={item.id} className={`flex items-start gap-4 ${index !== activityItems.length - 1 ? 'pb-4 border-b border-slate-800/50' : ''}`}>
+                    <div key={item.id} className={`flex items-start gap-4 ${index !== activityItems.length - 1 ? 'pb-4 border-b border-slate-200 dark:border-slate-800/80' : ''}`}>
                       <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${item.type === 'conversation' ? 'bg-blue-500/20 text-blue-400' : 'bg-violet-500/20 text-violet-400'}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d={item.type === 'conversation' ? "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" : "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"} />
+                          <path strokeLinecap="round" strokeLinejoin="round" d={item.type === 'conversation' ? "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" : "M16 7a4 4 0 11-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z"} />
                         </svg>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">{item.title}</p>
+                        <p className="text-sm font-semibold text-slate-900 truncate dark:text-white">{item.title}</p>
                         <p className="text-xs text-slate-500 mt-0.5">{item.subtitle}</p>
                       </div>
-                      <span className="text-xs text-slate-600 whitespace-nowrap">{new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-xs text-slate-500 whitespace-nowrap dark:text-slate-600">{new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                   ))}
               </div>
             </div>
 
             {/* System Status */}
-            <div className="rounded-2xl border border-slate-800/50 bg-slate-900/50 p-6">
-              <h3 className="text-lg font-semibold text-white mb-5">System Status</h3>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/70 dark:shadow-lg">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-5">System Status</h3>
               <div className="space-y-4">
                 {[
                   { label: "API Status", value: error ? "Degraded" : loading ? "Checking" : "Healthy", status: error ? "error" : "success" },
@@ -730,12 +730,12 @@ export default function AdminDashboard({
                     error: "bg-rose-500",
                   }[item.status];
                   return (
-                    <div key={item.label} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30 border border-slate-800/50">
+                    <div key={item.label} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 dark:bg-slate-800/30 dark:border-slate-800/50">
                       <div className="flex items-center gap-3">
                         <div className={`w-2.5 h-2.5 rounded-full ${statusColors}`} />
-                        <span className="text-sm text-slate-300">{item.label}</span>
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{item.label}</span>
                       </div>
-                      <span className="text-sm font-medium text-slate-400">{item.value}</span>
+                      <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">{item.value}</span>
                     </div>
                   );
                 })}
@@ -745,8 +745,8 @@ export default function AdminDashboard({
 
           {/* Platform Stats */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="rounded-2xl border border-slate-800/50 bg-slate-900/50 p-6">
-              <h3 className="text-lg font-semibold text-white mb-5">Users by Platform</h3>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/70 dark:shadow-lg">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-5">Users by Platform</h3>
               {loading && <div className="text-sm text-slate-500">Loading…</div>}
               {!loading && userEntries.length === 0 && <div className="text-sm text-slate-500">No data available</div>}
               {!loading && userEntries.length > 0 && (
@@ -754,10 +754,10 @@ export default function AdminDashboard({
                   {userEntries.map(([name, count]) => (
                     <div key={name}>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-slate-300 capitalize">{name}</span>
-                        <span className="text-sm font-bold text-white">{count}</span>
+                        <span className="text-sm font-semibold text-slate-700 capitalize dark:text-slate-300">{name}</span>
+                        <span className="text-sm font-bold text-slate-900 dark:text-white">{count}</span>
                       </div>
-                      <div className="h-2 rounded-full bg-slate-800">
+                      <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800">
                         <div
                           className="h-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
                           style={{ width: `${totalUsers ? Math.min(100, (count / totalUsers) * 100) : 0}%` }}
@@ -822,7 +822,7 @@ export default function AdminDashboard({
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search by user ID..."
-                  className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                  className="px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
                 <select
                   value={platformFilter}
@@ -830,7 +830,7 @@ export default function AdminDashboard({
                     setPage(1);
                     setPlatformFilter(event.target.value);
                   }}
-                  className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                  className="px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100"
                 >
                   <option value="all">All Platforms</option>
                   <option value="whatsapp">WhatsApp</option>
@@ -842,10 +842,10 @@ export default function AdminDashboard({
               </div>
 
               {loading && (
-                <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">Loading conversations...</div>
+                <div className="p-4 rounded-2xl bg-white border border-slate-200 text-sm text-slate-600 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:text-slate-300 dark:shadow-lg">Loading conversations...</div>
               )}
               {!loading && filteredConversations.length === 0 && (
-                <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">No conversations yet.</div>
+                <div className="p-4 rounded-2xl bg-white border border-slate-200 text-sm text-slate-600 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:text-slate-300 dark:shadow-lg">No conversations yet.</div>
               )}
               {!loading &&
                 filteredConversations.map((conv) => (
@@ -854,28 +854,28 @@ export default function AdminDashboard({
                     onClick={() => setSelectedConversation(conv)}
                     className={`text-left p-4 rounded-2xl border transition shadow-sm hover:shadow-lg ${selectedConversation?.id === conv.id
                       ? "border-emerald-500/80 bg-emerald-500/10"
-                      : "border-slate-800/80 bg-slate-950/70 hover:border-slate-700"
+                      : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800/80 dark:bg-slate-950/70 dark:hover:border-slate-700"
                       }`}
                   >
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
                       <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
                         {conv.platform}
                       </span>
-                      <span className="px-2 py-1 rounded-full bg-slate-800/80 text-slate-300 text-xs font-semibold">
+                      <span className="px-2 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold dark:bg-slate-800/80 dark:text-slate-300">
                         Neutral
                       </span>
                       <span>{new Date(conv.created_at).toLocaleString()}</span>
                     </div>
-                    <div className="mt-2 text-sm">
-                      <div>User: {conv.user_external_id}</div>
+                    <div className="mt-2 text-sm text-slate-700 dark:text-slate-200">
+                      <div className="truncate">User: {conv.user_external_id}</div>
                       <div>Status: {conv.status}</div>
                     </div>
                   </button>
                 ))}
 
-              <div className="flex items-center justify-between text-sm text-slate-300">
+              <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
                 <button
-                  className="px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 disabled:opacity-50"
+                  className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                   onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                   disabled={page === 1 || loading}
                 >
@@ -883,7 +883,7 @@ export default function AdminDashboard({
                 </button>
                 <span>Page {page}</span>
                 <button
-                  className="px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 disabled:opacity-50"
+                  className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                   onClick={() => setPage((prev) => prev + 1)}
                   disabled={loading || conversations.length < limit}
                 >
@@ -893,9 +893,9 @@ export default function AdminDashboard({
             </div>
 
             <div className="lg:w-3/5">
-              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 min-h-[220px]">
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 min-h-[220px] shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
                 <h4 className="text-sm font-semibold mb-3">Conversation Detail</h4>
-                <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-slate-300">
+                <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
                   <button
                     onClick={() => selectedConversation && handleToggleHandoff(selectedConversation)}
                     className={`px-3 py-1.5 rounded-full border font-semibold transition ${selectedConversation?.handoff_enabled
@@ -914,14 +914,14 @@ export default function AdminDashboard({
                       <p className="text-sm text-slate-500 dark:text-slate-400">No messages yet.</p>
                     )}
                     {conversationMessages.map((msg) => (
-                      <div key={msg.id} className="flex flex-col gap-1 text-sm rounded-xl border border-slate-800/70 bg-slate-900/60 p-3">
+                      <div key={msg.id} className="flex flex-col gap-1 text-sm rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800/70 dark:bg-slate-900/60">
                         <span className="text-slate-500 dark:text-slate-400">
                           {msg.sender} · {new Date(msg.created_at).toLocaleString()}
                         </span>
-                        <span className="text-slate-100">{msg.content}</span>
+                        <span className="text-slate-900 dark:text-slate-100">{msg.content}</span>
                       </div>
                     ))}
-                    <div className="rounded-xl border border-slate-800/70 bg-slate-900/60 p-3">
+                    <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800/70 dark:bg-slate-900/60">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Tags</p>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {(selectedConversation && conversationTags[selectedConversation.id] ? conversationTags[selectedConversation.id] : []).map(
@@ -939,18 +939,18 @@ export default function AdminDashboard({
                         <input
                           value={tagDraft}
                           onChange={(event) => setTagDraft(event.target.value)}
-                          className="flex-1 min-w-[160px] rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-xs text-slate-100"
+                          className="flex-1 min-w-[160px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                           placeholder="Add a tag"
                         />
                         <button
                           onClick={() => selectedConversation && addConversationTag(selectedConversation.id)}
-                          className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-200"
+                          className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-200"
                         >
                           Add Tag
                         </button>
                       </div>
                     </div>
-                    <div className="mt-4 rounded-xl border border-slate-800/70 bg-slate-900/60 p-3">
+                    <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800/70 dark:bg-slate-900/60">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Quick Replies</p>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {[
@@ -961,7 +961,7 @@ export default function AdminDashboard({
                           <button
                             key={template}
                             onClick={() => setReplyDraft(template)}
-                            className="px-3 py-1.5 rounded-full border border-slate-700/80 bg-slate-950/70 text-xs text-slate-200"
+                            className="px-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-200"
                           >
                             {template.slice(0, 28)}...
                           </button>
@@ -970,7 +970,7 @@ export default function AdminDashboard({
                       <textarea
                         value={replyDraft}
                         onChange={(event) => setReplyDraft(event.target.value)}
-                        className="mt-3 w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[90px]"
+                        className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all min-h-[90px] dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                         placeholder="Draft a reply..."
                       />
                       <div className="mt-2 flex items-center gap-2">
@@ -980,13 +980,13 @@ export default function AdminDashboard({
                             await sendAgentReply(selectedConversation.id, replyDraft.trim());
                             setReplyDraft("");
                           }}
-                          className="px-3 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-xs font-semibold text-emerald-200"
+                          className="px-3 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 hover:border-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200"
                         >
                           Send Reply
                         </button>
                         <button
                           onClick={() => navigator.clipboard.writeText(replyDraft)}
-                          className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-200"
+                          className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-200"
                         >
                           Copy Reply
                         </button>
@@ -1008,25 +1008,25 @@ export default function AdminDashboard({
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => exportLeadsCsv(filteredLeads)}
-                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-200"
+                className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-200"
               >
                 Export CSV
               </button>
               <button
                 onClick={() => exportLeadsCsv(filteredLeads.filter((lead) => selectedLeadIds.includes(lead.id)))}
-                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-200 disabled:opacity-50"
+                className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-200"
                 disabled={selectedLeadIds.length === 0}
               >
                 Export Selected
               </button>
               <button
-                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-500"
+                className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-400 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-500"
                 disabled
               >
                 Bulk Assign
               </button>
               <button
-                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-xs font-semibold text-slate-500"
+                className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-400 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-500"
                 disabled
               >
                 Bulk Tag
@@ -1039,28 +1039,28 @@ export default function AdminDashboard({
               { label: "Contacted", count: filteredLeads.filter((lead) => scoreLead(lead) >= 50 && scoreLead(lead) < 75).length },
               { label: "Qualified", count: filteredLeads.filter((lead) => scoreLead(lead) >= 75).length },
             ].map((stage) => (
-              <div key={stage.label} className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4">
+              <div key={stage.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/70 dark:shadow-lg">
                 <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{stage.label}</p>
-                <p className="mt-2 text-2xl font-semibold">{loading ? "..." : stage.count}</p>
+                <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">{loading ? "..." : stage.count}</p>
               </div>
             ))}
           </div>
           <div className="flex flex-col gap-3">
             {loading && (
-              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">Loading leads...</div>
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 text-sm text-slate-600 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:text-slate-300 dark:shadow-lg">Loading leads...</div>
             )}
             {!loading && filteredLeads.length === 0 && (
-              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">No leads yet.</div>
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 text-sm text-slate-600 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:text-slate-300 dark:shadow-lg">No leads yet.</div>
             )}
             {!loading &&
               filteredLeads.map((lead) => (
-                <div key={lead.id} className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">
-                  <div className="flex items-center gap-3 text-sm text-slate-300">
+                <div key={lead.id} className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+                  <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
                     <input
                       type="checkbox"
                       checked={selectedLeadIds.includes(lead.id)}
                       onChange={() => toggleLeadSelection(lead.id)}
-                      className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                      className="h-4 w-4 rounded border-slate-300 bg-white text-emerald-600 focus:ring-emerald-500/30 dark:border-slate-600 dark:bg-slate-900"
                     />
                     <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
                       {lead.platform}
@@ -1076,7 +1076,7 @@ export default function AdminDashboard({
                       style={{ width: `${scoreLead(lead)}%` }}
                     />
                   </div>
-                  <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2 text-sm">
+                  <div className="mt-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2 text-sm text-slate-700 dark:text-slate-200">
                     <span>Name: {lead.name ?? "-"}</span>
                     <span>Phone: {lead.phone ?? "-"}</span>
                     <span>Email: {lead.email ?? "-"}</span>
@@ -1094,12 +1094,12 @@ export default function AdminDashboard({
             <h3 className="text-lg font-semibold">Settings</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-6">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-6 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
               <div className="flex flex-wrap gap-2">
                 <button
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "ai"
                     ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
-                    : "border-slate-700/80 text-slate-200 bg-slate-900/70"
+                    : "border-slate-200 text-slate-700 bg-white hover:bg-slate-50 dark:border-slate-700/80 dark:text-slate-200 dark:bg-slate-900/70"
                     }`}
                   onClick={() => setSettingsSection((prev) => (prev === "ai" ? null : "ai"))}
                 >
@@ -1108,7 +1108,7 @@ export default function AdminDashboard({
                 <button
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "messaging"
                     ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
-                    : "border-slate-700/80 text-slate-200 bg-slate-900/70"
+                    : "border-slate-200 text-slate-700 bg-white hover:bg-slate-50 dark:border-slate-700/80 dark:text-slate-200 dark:bg-slate-900/70"
                     }`}
                   onClick={() => setSettingsSection((prev) => (prev === "messaging" ? null : "messaging"))}
                 >
@@ -1117,7 +1117,7 @@ export default function AdminDashboard({
                 <button
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "crm"
                     ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
-                    : "border-slate-700/80 text-slate-200 bg-slate-900/70"
+                    : "border-slate-200 text-slate-700 bg-white hover:bg-slate-50 dark:border-slate-700/80 dark:text-slate-200 dark:bg-slate-900/70"
                     }`}
                   onClick={() => setSettingsSection((prev) => (prev === "crm" ? null : "crm"))}
                 >
@@ -1126,7 +1126,7 @@ export default function AdminDashboard({
                 <button
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "database"
                     ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
-                    : "border-slate-700/80 text-slate-200 bg-slate-900/70"
+                    : "border-slate-200 text-slate-700 bg-white hover:bg-slate-50 dark:border-slate-700/80 dark:text-slate-200 dark:bg-slate-900/70"
                     }`}
                   onClick={() => setSettingsSection((prev) => (prev === "database" ? null : "database"))}
                 >
@@ -1135,7 +1135,7 @@ export default function AdminDashboard({
                 <button
                   className={`px-3 py-1.5 rounded-full border text-sm font-semibold ${settingsSection === "smtp"
                     ? "border-emerald-400 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10"
-                    : "border-slate-700/80 text-slate-200 bg-slate-900/70"
+                    : "border-slate-200 text-slate-700 bg-white hover:bg-slate-50 dark:border-slate-700/80 dark:text-slate-200 dark:bg-slate-900/70"
                     }`}
                   onClick={() => setSettingsSection((prev) => (prev === "smtp" ? null : "smtp"))}
                 >
@@ -1144,14 +1144,14 @@ export default function AdminDashboard({
               </div>
 
               {settingsSection === "ai" && (
-                <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
-                  <h4 className="text-sm font-semibold text-slate-300">AI Provider</h4>
+                <div className="border border-slate-200 rounded-2xl p-4 space-y-4 bg-slate-50 dark:border-slate-800/80 dark:bg-slate-900/40">
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-300">AI Provider</h4>
                   <div>
                     <label className="text-sm text-slate-500 dark:text-slate-400">AI Provider</label>
                     <input
                       value={settingsForm.ai_provider}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_provider: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="openai | groq"
                     />
                   </div>
@@ -1160,7 +1160,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.ai_model}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_model: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="gpt-4o-mini | llama3-8b-8192"
                     />
                   </div>
@@ -1169,7 +1169,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.ai_base_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_base_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="https://api.groq.com/openai/v1"
                     />
                   </div>
@@ -1178,7 +1178,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.ai_api_key}
                       onChange={(event) => setSettingsForm({ ...settingsForm, ai_api_key: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder={settingsData?.has_ai_api_key ? "Configured" : "Enter API key"}
                     />
                   </div>
@@ -1186,14 +1186,14 @@ export default function AdminDashboard({
               )}
 
               {settingsSection === "messaging" && (
-                <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
-                  <h4 className="text-sm font-semibold text-slate-300">Messaging Platforms</h4>
+                <div className="border border-slate-200 rounded-2xl p-4 space-y-4 bg-slate-50 dark:border-slate-800/80 dark:bg-slate-900/40">
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-300">Messaging Platforms</h4>
                   <div>
                     <label className="text-sm text-slate-500 dark:text-slate-400">Verify Token</label>
                     <input
                       value={settingsForm.verify_token}
                       onChange={(event) => setSettingsForm({ ...settingsForm, verify_token: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder={settingsData?.verify_token_set ? "Configured" : "Enter verify token"}
                     />
                   </div>
@@ -1202,7 +1202,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.meta_api_version}
                       onChange={(event) => setSettingsForm({ ...settingsForm, meta_api_version: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="v19.0"
                     />
                   </div>
@@ -1211,7 +1211,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.meta_access_token}
                       onChange={(event) => setSettingsForm({ ...settingsForm, meta_access_token: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder={settingsData?.meta_access_token_set ? "Configured" : "Enter Meta access token"}
                     />
                   </div>
@@ -1222,7 +1222,7 @@ export default function AdminDashboard({
                       onChange={(event) =>
                         setSettingsForm({ ...settingsForm, meta_page_access_token: event.target.value })
                       }
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder={settingsData?.meta_page_access_token_set ? "Configured" : "Enter page access token"}
                     />
                   </div>
@@ -1231,7 +1231,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.meta_phone_number_id}
                       onChange={(event) => setSettingsForm({ ...settingsForm, meta_phone_number_id: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="Enter phone number ID"
                     />
                   </div>
@@ -1240,7 +1240,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.telegram_bot_token}
                       onChange={(event) => setSettingsForm({ ...settingsForm, telegram_bot_token: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder={settingsData?.telegram_bot_token_set ? "Configured" : "Enter Telegram bot token"}
                     />
                   </div>
@@ -1248,14 +1248,14 @@ export default function AdminDashboard({
               )}
 
               {settingsSection === "crm" && (
-                <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
-                  <h4 className="text-sm font-semibold text-slate-300">CRM & Sheets</h4>
+                <div className="border border-slate-200 rounded-2xl p-4 space-y-4 bg-slate-50 dark:border-slate-800/80 dark:bg-slate-900/40">
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-300">CRM & Sheets</h4>
                   <div>
                     <label className="text-sm text-slate-500 dark:text-slate-400">CRM Webhook URL</label>
                     <input
                       value={settingsForm.crm_webhook_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, crm_webhook_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="https://your-crm-webhook"
                     />
                   </div>
@@ -1264,7 +1264,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.sheets_webhook_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, sheets_webhook_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="https://your-sheets-webhook"
                     />
                   </div>
@@ -1272,14 +1272,14 @@ export default function AdminDashboard({
               )}
 
               {settingsSection === "database" && (
-                <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
-                  <h4 className="text-sm font-semibold text-slate-300">Database</h4>
+                <div className="border border-slate-200 rounded-2xl p-4 space-y-4 bg-slate-50 dark:border-slate-800/80 dark:bg-slate-900/40">
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-300">Database</h4>
                   <div>
                     <label className="text-sm text-slate-500 dark:text-slate-400">Database URL</label>
                     <input
                       value={settingsForm.database_url}
                       onChange={(event) => setSettingsForm({ ...settingsForm, database_url: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="postgresql+asyncpg://user:pass@host:5432/db"
                     />
                   </div>
@@ -1287,14 +1287,14 @@ export default function AdminDashboard({
               )}
 
               {settingsSection === "smtp" && (
-                <div className="border border-slate-800/80 rounded-2xl p-4 space-y-4 bg-slate-900/40">
-                  <h4 className="text-sm font-semibold text-slate-300">SMTP Email</h4>
+                <div className="border border-slate-200 rounded-2xl p-4 space-y-4 bg-slate-50 dark:border-slate-800/80 dark:bg-slate-900/40">
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-300">SMTP Email</h4>
                   <div>
                     <label className="text-sm text-slate-500 dark:text-slate-400">SMTP Host</label>
                     <input
                       value={settingsForm.smtp_host}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_host: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="smtp.gmail.com"
                     />
                   </div>
@@ -1303,7 +1303,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.smtp_port}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_port: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="587"
                     />
                   </div>
@@ -1312,7 +1312,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.smtp_user}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_user: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="you@example.com"
                     />
                   </div>
@@ -1321,7 +1321,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.smtp_pass}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_pass: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="App password"
                     />
                   </div>
@@ -1330,7 +1330,7 @@ export default function AdminDashboard({
                     <input
                       value={settingsForm.smtp_from}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_from: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                       placeholder="Support <support@example.com>"
                     />
                   </div>
@@ -1339,7 +1339,7 @@ export default function AdminDashboard({
                     <select
                       value={settingsForm.smtp_tls}
                       onChange={(event) => setSettingsForm({ ...settingsForm, smtp_tls: event.target.value })}
-                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                      className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100"
                     >
                       <option value="true">true</option>
                       <option value="false">false</option>
@@ -1352,7 +1352,7 @@ export default function AdminDashboard({
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleSettingsSave}
-                    className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold hover:bg-emerald-500/20 transition"
+                    className="px-4 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-white font-semibold hover:bg-emerald-700 hover:border-emerald-700 transition dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
                   >
                     Save Settings
                   </button>
@@ -1361,8 +1361,8 @@ export default function AdminDashboard({
               )}
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3 text-sm">
-              <p className="text-slate-300 font-semibold">Current Status</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 text-sm shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-slate-900 dark:text-slate-300 font-semibold">Current Status</p>
               <p>AI Key: {settingsData?.has_ai_api_key ? "Configured" : "Missing"}</p>
               <p>Verify Token: {settingsData?.verify_token_set ? "Configured" : "Missing"}</p>
               <p>Meta Access Token: {settingsData?.meta_access_token_set ? "Configured" : "Missing"}</p>
@@ -1382,13 +1382,13 @@ export default function AdminDashboard({
             <h3 className="text-lg font-semibold">Email Reply</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-4 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
               <div>
                 <label className="text-sm text-slate-500 dark:text-slate-400">To</label>
                 <input
                   value={emailForm.to}
                   onChange={(event) => setEmailForm({ ...emailForm, to: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                   placeholder="user@example.com"
                 />
               </div>
@@ -1397,7 +1397,7 @@ export default function AdminDashboard({
                 <input
                   value={emailForm.subject}
                   onChange={(event) => setEmailForm({ ...emailForm, subject: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                   placeholder="Re: Your request"
                 />
               </div>
@@ -1406,20 +1406,20 @@ export default function AdminDashboard({
                 <textarea
                   value={emailForm.message}
                   onChange={(event) => setEmailForm({ ...emailForm, message: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100 min-h-[140px]"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all min-h-[140px] dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                   placeholder="Paste the customer email here..."
                 />
               </div>
               <button
                 onClick={handleEmailReply}
-                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold hover:bg-emerald-500/20 transition"
+                className="px-4 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-white font-semibold hover:bg-emerald-700 hover:border-emerald-700 transition dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
               >
                 Generate & Send Reply
               </button>
             </div>
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3 text-sm">
-              <p className="text-slate-300 font-semibold">AI Reply Preview</p>
-              <p className="text-slate-100 whitespace-pre-wrap">{emailReply || "No reply generated yet."}</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 text-sm shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-slate-900 dark:text-slate-300 font-semibold">AI Reply Preview</p>
+              <p className="text-slate-700 dark:text-slate-100 whitespace-pre-wrap">{emailReply || "No reply generated yet."}</p>
             </div>
           </div>
         </div>
@@ -1431,7 +1431,7 @@ export default function AdminDashboard({
             <h3 className="text-lg font-semibold">Knowledge Base</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-4 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
               <div>
                 <label className="text-sm text-slate-500 dark:text-slate-400">Upload document (PDF/DOCX/TXT)</label>
                 <input
@@ -1440,7 +1440,7 @@ export default function AdminDashboard({
                     const file = event.target.files?.[0];
                     if (file) handleUploadKb(file);
                   }}
-                  className="mt-2 w-full text-sm text-slate-300"
+                  className="mt-2 w-full text-sm text-slate-700 dark:text-slate-300"
                 />
               </div>
               <div>
@@ -1449,11 +1449,11 @@ export default function AdminDashboard({
                   <input
                     value={kbQuery}
                     onChange={(event) => setKbQuery(event.target.value)}
-                    className="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                    className="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                   />
                   <button
                     onClick={handleSearchKb}
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-sm text-slate-200"
+                    className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-200"
                   >
                     Search
                   </button>
@@ -1468,18 +1468,18 @@ export default function AdminDashboard({
                 ))}
               </div>
             </div>
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
-              <p className="text-sm font-semibold text-slate-300">Documents</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-300">Documents</p>
               {knowledgeBase.length === 0 && <p className="text-xs text-slate-400 dark:text-slate-500">No documents uploaded.</p>}
               {knowledgeBase.map((doc) => (
                 <div key={doc.id} className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                   <div>
-                    <p className="text-slate-200">{doc.filename}</p>
+                    <p className="text-slate-900 dark:text-slate-200">{doc.filename}</p>
                     <p className="text-xs text-slate-400 dark:text-slate-500">Chunks: {doc.chunks}</p>
                   </div>
                   <button
                     onClick={() => handleDeleteKb(doc.id)}
-                    className="px-2 py-1 rounded-lg border border-rose-500/40 text-rose-200 text-xs"
+                    className="px-2 py-1 rounded-lg border border-rose-500/40 text-rose-700 text-xs font-semibold hover:bg-rose-50 dark:text-rose-200"
                   >
                     Delete
                   </button>
@@ -1496,35 +1496,35 @@ export default function AdminDashboard({
             <h3 className="text-lg font-semibold">Conversation Intelligence</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
-              <p className="text-sm text-slate-300 font-semibold">Analyze Message</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-sm text-slate-900 dark:text-slate-300 font-semibold">Analyze Message</p>
               <textarea
                 value={intelligenceInput}
                 onChange={(event) => setIntelligenceInput(event.target.value)}
-                className="w-full min-h-[140px] rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                className="w-full min-h-[140px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Paste a customer message to classify intent and entities..."
               />
               <button
                 onClick={handleAnalyzeIntelligence}
-                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 text-sm font-semibold"
+                className="px-4 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 hover:border-emerald-700 transition dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200"
               >
                 Analyze
               </button>
               {intelligenceResult && (
                 <div className="space-y-2 text-sm">
                   <p>
-                    Intent: <span className="text-emerald-200">{intelligenceResult.intent}</span> · Confidence: {intelligenceResult.confidence}
+                    Intent: <span className="text-emerald-700 dark:text-emerald-200">{intelligenceResult.intent}</span> · Confidence: {intelligenceResult.confidence}
                   </p>
                   <p className="text-slate-500 dark:text-slate-400">Summary: {intelligenceResult.summary}</p>
                   <div>
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Entities</p>
-                    <pre className="mt-2 text-xs text-slate-200 whitespace-pre-wrap">
+                    <pre className="mt-2 text-xs text-slate-700 dark:text-slate-200 whitespace-pre-wrap">
                       {JSON.stringify(intelligenceResult.entities, null, 2)}
                     </pre>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Suggested Responses</p>
-                    <ul className="mt-2 space-y-1 text-xs text-slate-200">
+                    <ul className="mt-2 space-y-1 text-xs text-slate-700 dark:text-slate-200">
                       {intelligenceResult.suggested_responses.map((resp) => (
                         <li key={resp}>• {resp}</li>
                       ))}
@@ -1533,8 +1533,8 @@ export default function AdminDashboard({
                 </div>
               )}
             </div>
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
-              <p className="text-sm text-slate-300 font-semibold">Advanced Analytics</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-sm text-slate-900 dark:text-slate-300 font-semibold">Advanced Analytics</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Avg response time: {advancedAnalytics?.avg_response_time_seconds ?? "-"}s · Samples: {advancedAnalytics?.response_samples ?? 0}
               </p>
@@ -1542,7 +1542,7 @@ export default function AdminDashboard({
                 {Object.entries(advancedAnalytics?.sentiment_breakdown ?? {}).map(([key, value]) => (
                   <div key={key} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{key}</p>
-                    <p className="mt-1 text-lg font-semibold text-slate-100">{value}</p>
+                    <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{value}</p>
                   </div>
                 ))}
               </div>
@@ -1550,7 +1550,7 @@ export default function AdminDashboard({
                 <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Top Topics</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {(advancedAnalytics?.top_topics ?? []).map((topic) => (
-                    <span key={topic.topic} className="px-2 py-1 rounded-full bg-slate-800/80 text-xs text-slate-200">
+                    <span key={topic.topic} className="px-2 py-1 rounded-full bg-slate-100 text-xs text-slate-700 dark:bg-slate-800/80 dark:text-slate-200">
                       {topic.topic} · {topic.count}
                     </span>
                   ))}
@@ -1567,12 +1567,12 @@ export default function AdminDashboard({
             <h3 className="text-lg font-semibold">Proactive Campaigns</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
-              <p className="text-sm text-slate-300 font-semibold">Broadcast Message</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-sm text-slate-900 dark:text-slate-300 font-semibold">Broadcast Message</p>
               <select
                 value={campaignForm.platform}
                 onChange={(event) => setCampaignForm({ ...campaignForm, platform: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100"
               >
                 <option value="telegram">Telegram</option>
                 <option value="whatsapp">WhatsApp</option>
@@ -1583,22 +1583,22 @@ export default function AdminDashboard({
               <textarea
                 value={campaignForm.message}
                 onChange={(event) => setCampaignForm({ ...campaignForm, message: event.target.value })}
-                className="w-full min-h-[120px] rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                className="w-full min-h-[120px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Write a campaign message..."
               />
               <button
                 onClick={handleBroadcast}
-                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 text-sm font-semibold"
+                className="px-4 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 hover:border-emerald-700 transition dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200"
               >
                 Send Broadcast
               </button>
             </div>
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
-              <p className="text-sm text-slate-300 font-semibold">Abandoned Recovery</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-sm text-slate-900 dark:text-slate-300 font-semibold">Abandoned Recovery</p>
               <select
                 value={recoveryForm.platform}
                 onChange={(event) => setRecoveryForm({ ...recoveryForm, platform: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100"
               >
                 <option value="">All Platforms</option>
                 <option value="telegram">Telegram</option>
@@ -1610,17 +1610,17 @@ export default function AdminDashboard({
                 type="number"
                 value={recoveryForm.hours_inactive}
                 onChange={(event) => setRecoveryForm({ ...recoveryForm, hours_inactive: Number(event.target.value) })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Hours inactive"
               />
               <textarea
                 value={recoveryForm.message}
                 onChange={(event) => setRecoveryForm({ ...recoveryForm, message: event.target.value })}
-                className="w-full min-h-[120px] rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                className="w-full min-h-[120px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
               />
               <button
                 onClick={handleRecovery}
-                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 text-sm font-semibold"
+                className="px-4 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 hover:border-emerald-700 transition dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200"
               >
                 Start Recovery
               </button>
@@ -1635,13 +1635,13 @@ export default function AdminDashboard({
             <h3 className="text-lg font-semibold">Bot Personality</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-4 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
               <div>
                 <label className="text-sm text-slate-500 dark:text-slate-400">Persona</label>
                 <input
                   value={botForm.persona}
                   onChange={(event) => setBotForm({ ...botForm, persona: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                   placeholder="Support specialist"
                 />
               </div>
@@ -1650,7 +1650,7 @@ export default function AdminDashboard({
                 <input
                   value={botForm.tone}
                   onChange={(event) => setBotForm({ ...botForm, tone: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                   placeholder="friendly | formal | casual"
                 />
               </div>
@@ -1659,55 +1659,55 @@ export default function AdminDashboard({
                 <textarea
                   value={botForm.system_prompt}
                   onChange={(event) => setBotForm({ ...botForm, system_prompt: event.target.value })}
-                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100 min-h-[140px]"
+                  className="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all min-h-[140px] dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </div>
               <button
                 onClick={handleBotConfigSave}
-                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 font-semibold"
+                className="px-4 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-white font-semibold hover:bg-emerald-700 hover:border-emerald-700 transition dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200"
               >
                 Save Bot Config
               </button>
             </div>
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3 text-sm">
-              <p className="text-slate-300 font-semibold">Current Config</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 text-sm shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-slate-900 dark:text-slate-300 font-semibold">Current Config</p>
               <p>Persona: {botConfig?.persona ?? "-"}</p>
               <p>Tone: {botConfig?.tone ?? "-"}</p>
               <p className="text-slate-500 dark:text-slate-400">Prompt: {botConfig?.system_prompt || "Default"}</p>
             </div>
           </div>
           <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
-              <p className="text-sm text-slate-300 font-semibold">Flow Builder (JSON)</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-sm text-slate-900 dark:text-slate-300 font-semibold">Flow Builder (JSON)</p>
               <input
                 value={flowDraft.name}
                 onChange={(event) => setFlowDraft({ ...flowDraft, name: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Flow name"
               />
               <textarea
                 value={flowDraft.nodesJson}
                 onChange={(event) => setFlowDraft({ ...flowDraft, nodesJson: event.target.value })}
-                className="w-full min-h-[140px] rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-xs text-slate-100"
+                className="w-full min-h-[140px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder='[{"id":"start","type":"message","label":"Welcome"}]'
               />
               <button
                 onClick={handleCreateFlow}
-                className="px-4 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-200 text-sm font-semibold"
+                className="px-4 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 hover:border-emerald-700 transition dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200"
               >
                 Save Flow
               </button>
             </div>
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
-              <p className="text-sm font-semibold text-slate-300">Saved Flows</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-2 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-300">Saved Flows</p>
               {flows.length === 0 && <p className="text-xs text-slate-400 dark:text-slate-500">No flows created.</p>}
               {flows.map((flow) => (
                 <div key={flow.id} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                   <div className="flex items-center justify-between">
-                    <p className="text-slate-200 font-semibold">{flow.name}</p>
+                    <p className="text-slate-900 dark:text-slate-200 font-semibold">{flow.name}</p>
                     <button
                       onClick={() => handleDeleteFlow(flow.id)}
-                      className="px-2 py-1 rounded-lg border border-rose-500/40 text-rose-200 text-xs"
+                      className="px-2 py-1 rounded-lg border border-rose-500/40 text-rose-700 text-xs font-semibold hover:bg-rose-50 dark:text-rose-200"
                     >
                       Delete
                     </button>
@@ -1726,47 +1726,47 @@ export default function AdminDashboard({
             <h3 className="text-lg font-semibold">Automation Workflows</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
-              <p className="text-sm text-slate-300 font-semibold">Add Rule</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-sm text-slate-900 dark:text-slate-300 font-semibold">Add Rule</p>
               <input
                 value={workflowDraft.name}
                 onChange={(event) => setWorkflowDraft({ ...workflowDraft, name: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Rule name"
               />
               <input
                 value={workflowDraft.keywords}
                 onChange={(event) => setWorkflowDraft({ ...workflowDraft, keywords: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Keywords (comma separated)"
               />
               <input
                 value={workflowDraft.action}
                 onChange={(event) => setWorkflowDraft({ ...workflowDraft, action: event.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 text-slate-100"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="auto_reply: Hello there"
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleAddWorkflow}
-                  className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-sm text-slate-200"
+                  className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-200"
                 >
                   Add Rule
                 </button>
                 <button
                   onClick={handleSaveWorkflows}
-                  className="px-3 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-sm text-emerald-200"
+                  className="px-3 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-sm font-semibold text-white hover:bg-emerald-700 hover:border-emerald-700 transition dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200"
                 >
                   Save Rules
                 </button>
               </div>
             </div>
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
-              <p className="text-sm font-semibold text-slate-300">Rules</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-2 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-300">Rules</p>
               {workflowRules.length === 0 && <p className="text-xs text-slate-400 dark:text-slate-500">No rules configured.</p>}
               {workflowRules.map((rule) => (
                 <div key={rule.id} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
-                  <p className="text-slate-200 font-semibold">{rule.name}</p>
+                  <p className="text-slate-900 dark:text-slate-200 font-semibold">{rule.name}</p>
                   <p className="text-xs text-slate-400 dark:text-slate-500">Keywords: {rule.keywords.join(", ")}</p>
                   <p className="text-xs text-slate-400 dark:text-slate-500">Action: {rule.action}</p>
                 </div>
@@ -1781,18 +1781,18 @@ export default function AdminDashboard({
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Reports & Export</h3>
           </div>
-          <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
-            <p className="text-sm text-slate-300">Download CSV reports for analysis.</p>
+          <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+            <p className="text-sm text-slate-700 dark:text-slate-300">Download CSV reports for analysis.</p>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => handleExportReport("leads")}
-                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-sm text-slate-200"
+                className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-200"
               >
                 Export Leads
               </button>
               <button
                 onClick={() => handleExportReport("messages")}
-                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 text-sm text-slate-200"
+                className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-200"
               >
                 Export Messages
               </button>
@@ -1807,12 +1807,12 @@ export default function AdminDashboard({
             <h3 className="text-lg font-semibold">Chatbot Testing</h3>
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
-              <p className="text-sm font-semibold text-slate-300">Conversation Simulator</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-300">Conversation Simulator</p>
               <textarea
                 value={simulatorPrompt}
                 onChange={(event) => setSimulatorPrompt(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all min-h-[120px] dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Enter a starter message..."
               />
               <input
@@ -1821,11 +1821,11 @@ export default function AdminDashboard({
                 max={8}
                 value={simulatorTurns}
                 onChange={(event) => setSimulatorTurns(Number(event.target.value))}
-                className="w-24 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                className="w-24 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100"
               />
               <button
                 onClick={handleSimulate}
-                className="px-3 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-sm text-emerald-200"
+                className="px-3 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-sm font-semibold text-white hover:bg-emerald-700 hover:border-emerald-700 transition dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200"
               >
                 Run Simulation
               </button>
@@ -1833,34 +1833,34 @@ export default function AdminDashboard({
                 {simulatorTranscript.map((entry, index) => (
                   <div key={index} className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{entry.role}</p>
-                    <p className="text-slate-100">{entry.content}</p>
+                    <p className="text-slate-900 dark:text-slate-100">{entry.content}</p>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-3">
-              <p className="text-sm font-semibold text-slate-300">A/B Test Prompts</p>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm dark:bg-slate-950/70 dark:border-slate-800/80 dark:shadow-lg">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-300">A/B Test Prompts</p>
               <textarea
                 value={abPromptA}
                 onChange={(event) => setAbPromptA(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all min-h-[120px] dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Prompt A"
               />
               <textarea
                 value={abPromptB}
                 onChange={(event) => setAbPromptB(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100 min-h-[120px]"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all min-h-[120px] dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Prompt B"
               />
               <input
                 value={abMessage}
                 onChange={(event) => setAbMessage(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="User message"
               />
               <button
                 onClick={handleAbTest}
-                className="px-3 py-2 rounded-xl border border-emerald-500 bg-emerald-500/10 text-sm text-emerald-200"
+                className="px-3 py-2 rounded-xl border border-emerald-600 bg-emerald-600 text-sm font-semibold text-white hover:bg-emerald-700 hover:border-emerald-700 transition dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200"
               >
                 Run A/B Test
               </button>
@@ -1868,11 +1868,11 @@ export default function AdminDashboard({
                 <div className="grid grid-cols-1 gap-2">
                   <div className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Response A</p>
-                    <p className="text-slate-100">{abResult.response_a}</p>
+                    <p className="text-slate-900 dark:text-slate-100">{abResult.response_a}</p>
                   </div>
                   <div className="rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-3 text-sm">
                     <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Response B</p>
-                    <p className="text-slate-100">{abResult.response_b}</p>
+                    <p className="text-slate-900 dark:text-slate-100">{abResult.response_b}</p>
                   </div>
                 </div>
               )}
